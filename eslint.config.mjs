@@ -12,6 +12,9 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Reference-only browser-global JSX snippets ported by hand into app/ —
+    // not app source, not built by Next.js.
+    "referencias/**",
   ]),
 ]);
 
