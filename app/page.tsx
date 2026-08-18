@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
-import { Library } from "./components/library";
+import { Home } from "./components/home";
 
 export const metadata: Metadata = {
-  title: "Arcade Vault · Biblioteca",
-  description: "Explora la biblioteca de juegos retro de Arcade Vault.",
+  title: "Arcade Vault · Portal Retro",
+  description: "El arcade clásico está de vuelta: juega los mejores clásicos gratis en tu navegador.",
 };
 
 export default function Page() {
-  return <Library />;
+  return <Home />;
 }
