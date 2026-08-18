@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import { validateContact } from "@/lib/contact";
 import { HighlightIcon, type HighlightIconKind } from "./pixel-icons";
 import { useReveal } from "./use-reveal";
 
@@ -16,17 +17,63 @@ export function AboutContact() {
   useReveal();
 
   const [form, setForm] = useState<ContactForm>({ name: "", email: "", msg: "" });
+  const [website, setWebsite] = useState("");
   const [sent, setSent] = useState<string | null>(null);
   const [shake, setShake] = useState(false);
+  const [status, setStatus] = useState<"idle" | "sending" | "error">("idle");
+  const [errorMsg, setErrorMsg] = useState("");
 
-  const onSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const triggerShake = () => {
+    setShake(true);
+    setTimeout(() => setShake(false), 400);
+  };
+
+  const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!form.name.trim() || !form.email.trim() || !form.msg.trim()) {
-      setShake(true);
-      setTimeout(() => setShake(false), 400);
+    if (status === "sending") return;
+
+    const validation = validateContact(form);
+    if (!validation.ok) {
+      if (validation.error === "empty") {
+        setStatus("idle");
+        setErrorMsg("");
+      } else {
+        setStatus("error");
+        setErrorMsg("⚠ NO SE PUDO ENVIAR. INTÉNTALO DE NUEVO.");
+      }
+      triggerShake();
       return;
     }
-    setSent(form.name.trim());
+
+    setStatus("sending");
+    setErrorMsg("");
+
+    try {
+      const res = await fetch("/api/contacto", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...form, website }),
+      });
+      const data = (await res.json()) as { ok: boolean; error?: string };
+
+      if (!data.ok) {
+        setStatus("error");
+        setErrorMsg(
+          data.error === "rate_limited"
+            ? "⚠ DEMASIADOS ENVÍOS. ESPERA UNOS MINUTOS."
+            : "⚠ NO SE PUDO ENVIAR. INTÉNTALO DE NUEVO."
+        );
+        triggerShake();
+        return;
+      }
+
+      setStatus("idle");
+      setSent(form.name.trim());
+    } catch {
+      setStatus("error");
+      setErrorMsg("⚠ NO SE PUDO ENVIAR. INTÉNTALO DE NUEVO.");
+      triggerShake();
+    }
   };
 
   return (
@@ -83,9 +130,20 @@ export function AboutContact() {
             </div>
           </div>
 
-          <form className={"contact-form" + (shake ? " shake" : "")} onSubmit={onSubmit}>
+          <form className={"contact-form" + (shake ? " shake" : "")} onSubmit={onSubmit} noValidate>
             {!sent ? (
               <>
+                <div className="hp-field" aria-hidden="true">
+                  <label htmlFor="website">Sitio web</label>
+                  <input
+                    id="website"
+                    name="website"
+                    tabIndex={-1}
+                    autoComplete="off"
+                    value={website}
+                    onChange={(e) => setWebsite(e.target.value)}
+                  />
+                </div>
                 <div className="field">
                   <label>NOMBRE</label>
                   <input
@@ -112,9 +170,15 @@ export function AboutContact() {
                     placeholder="Cuéntanos qué tienes en mente…"
                   ></textarea>
                 </div>
-                <button className="btn xl press" type="submit" style={{ width: "100%" }}>
-                  ▶ ENVIAR MENSAJE
+                <button
+                  className="btn xl press"
+                  type="submit"
+                  style={{ width: "100%" }}
+                  disabled={status === "sending"}
+                >
+                  {status === "sending" ? "ENVIANDO…" : "▶ ENVIAR MENSAJE"}
                 </button>
+                {status === "error" && errorMsg && <div className="contact-error pixel">{errorMsg}</div>}
               </>
             ) : (
               <div className="terminal-success">
