@@ -24,14 +24,18 @@ Do not assume App Router behavior (routing conventions, `layout.tsx` types, conf
 
 There is no test runner configured yet.
 
+The contact form (`/acerca`) needs a `.env.local` with `RESEND_API_KEY`, `CONTACT_FROM`, `CONTACT_TO` (see `.env.example`) or `POST /api/contacto` returns `500 { error: "server" }`. Without a verified domain in Resend, `CONTACT_TO` must be the email address the Resend account itself was created with — any other recipient is rejected by Resend.
+
 ## Architecture
 
 - App Router project (`app/` directory), TypeScript in strict mode, path alias `@/*` → project root.
 - Styling via Tailwind CSS v4 (`@tailwindcss/postcss`), configured through `app/globals.css` rather than a `tailwind.config.js`. `globals.css` also carries a hand-authored retro "Arcade Vault" theme (CSS custom properties, semantic classes like `.card`, `.btn`, `.crt`) ported 1:1 from `referencias/templates/styles.css` — reuse those classes, don't invent Tailwind utility equivalents for screens that already have one.
 - `app/layout.tsx` is the root layout; note the `LayoutProps<"/">` typed props pattern used there — a Next.js 16 App Router convention, not the plain `{ children: React.ReactNode }` signature from older versions. It wraps every page in `SessionProvider` → `Nav` → `<main className="av-main">{children}</main>` → `SiteFooter`.
-- Real routes: `/` (Biblioteca), `/juegos/[id]` (Detalle), `/juegos/[id]/jugar` (Reproductor), `/auth` (Acceso), `/salon` (Salón de la Fama). Dynamic pages use the `PageProps<'/juegos/[id]'>` global helper with `await params` (see the Next.js version note above).
-- `data/games.ts` — typed mock data (`GAMES`, `CATS`, `seededScores`). No backend, no database.
-- `app/components/` — one component per screen (`library.tsx`, `game-card.tsx`, `leaderboard.tsx`, `game-player.tsx`, `auth-form.tsx`, `hall-of-fame.tsx`), plus `nav.tsx`, `site-footer.tsx`, and `session-provider.tsx`.
+- Real routes: `/` (Landing), `/biblioteca` (Biblioteca), `/acerca` (Acerca de / Contacto), `/juegos/[id]` (Detalle), `/juegos/[id]/jugar` (Reproductor), `/auth` (Acceso), `/salon` (Salón de la Fama). Dynamic pages use the `PageProps<'/juegos/[id]'>` global helper with `await params` (see the Next.js version note above).
+- `app/api/contacto/route.ts` — the project's only Route Handler (`POST`). Validates with `lib/contact.ts`, applies an in-memory honeypot + per-IP rate limit, then sends the message via Resend. Reads `RESEND_API_KEY`, `CONTACT_FROM`, `CONTACT_TO` from `.env.local` (see `.env.example` for the shape) — the only place in the repo that touches `process.env`.
+- `lib/contact.ts` — shared contact-form validation (`validateContact`), used by both the client form and the route handler above.
+- `data/games.ts` — typed mock data (`GAMES`, `CATS`, `seededScores`, `HOME_TICKER`, `HOME_TOP`, `HOME_STATS`). No database.
+- `app/components/` — one component per screen (`home.tsx`, `library.tsx`, `game-card.tsx`, `leaderboard.tsx`, `game-player.tsx`, `auth-form.tsx`, `hall-of-fame.tsx`, `about-contact.tsx`), plus `nav.tsx`, `site-footer.tsx`, `session-provider.tsx`, `pixel-icons.tsx` (shared inline SVG icons) and `use-reveal.ts` (shared scroll-reveal `IntersectionObserver` hook).
 - `app/components/session-provider.tsx` implements a **fake client-side session** (no real auth/backend): `useSession()` exposes `user`, `signIn`, `signOut`, `saveScore`, persisted in `localStorage` (`av_user`, `av_scores`).
 - `referencias/templates/` holds the original HTML/JSX mockups each screen is ported from. It's reference material, not app source — excluded from ESLint in `eslint.config.mjs`.
 
