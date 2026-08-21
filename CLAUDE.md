@@ -21,8 +21,11 @@ Do not assume App Router behavior (routing conventions, `layout.tsx` types, conf
 - `npm run build` — production build
 - `npm run start` — run the production build
 - `npm run lint` — ESLint (flat config in `eslint.config.mjs`, using `eslint-config-next`'s `core-web-vitals` + `typescript` rule sets)
+- `npm run format` — Prettier (`.prettierrc.json`, with `prettier-plugin-tailwindcss`), writing every file except what's listed in `.prettierignore` (`referencias/`, `app/globals.css` — hand-ported 1:1 from the mockup, don't reformat it — `node_modules/`, build output)
 
 There is no test runner configured yet.
+
+A project-scoped `PostToolUse` hook (`.claude/settings.json` → `.claude/hooks/format-and-lint.mjs`) runs Prettier and `eslint --fix` automatically on every file Claude writes or edits, respecting the same `.prettierignore` exclusions. Any lint problems `--fix` can't resolve are surfaced back into context instead of failing silently.
 
 The contact form (`/acerca`) needs a `.env.local` with `RESEND_API_KEY`, `CONTACT_FROM`, `CONTACT_TO` (see `.env.example`) or `POST /api/contacto` returns `500 { error: "server" }`. Without a verified domain in Resend, `CONTACT_TO` must be the email address the Resend account itself was created with — any other recipient is rejected by Resend.
 
