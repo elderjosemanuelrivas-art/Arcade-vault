@@ -16,7 +16,7 @@ function isActive(pathname: string, name: "inicio" | "biblioteca" | "salon" | "a
 export function Nav() {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
-  const { user, signOut } = useSession();
+  const { user, loading, signOut } = useSession();
   const close = () => setOpen(false);
 
   return (
@@ -47,15 +47,16 @@ export function Nav() {
           <span className="coin"></span>
           <span>CRÉDITOS · 03</span>
         </div>
-        {user ? (
-          <button className="btn ghost auth-btn" onClick={signOut}>
-            {user.name} ▾
-          </button>
-        ) : (
-          <Link href="/auth" className="btn auth-btn">
-            Iniciar Sesión
-          </Link>
-        )}
+        {!loading &&
+          (user ? (
+            <button className="btn ghost auth-btn" onClick={() => void signOut()}>
+              {user.nickname} ▾
+            </button>
+          ) : (
+            <Link href="/auth" className="btn auth-btn">
+              Iniciar Sesión
+            </Link>
+          ))}
         <button className="btn ghost hamburger" onClick={() => setOpen(true)} aria-label="Menú">
           ≡
         </button>
@@ -69,20 +70,31 @@ export function Nav() {
         <Link href="/" className={isActive(pathname, "inicio") ? "active" : ""} onClick={close}>
           Inicio
         </Link>
-        <Link href="/biblioteca" className={isActive(pathname, "biblioteca") ? "active" : ""} onClick={close}>
+        <Link
+          href="/biblioteca"
+          className={isActive(pathname, "biblioteca") ? "active" : ""}
+          onClick={close}
+        >
           Biblioteca
         </Link>
         <Link href="/salon" className={isActive(pathname, "salon") ? "active" : ""} onClick={close}>
           Salón de la Fama
         </Link>
-        <Link href="/acerca" className={isActive(pathname, "acerca") ? "active" : ""} onClick={close}>
+        <Link
+          href="/acerca"
+          className={isActive(pathname, "acerca") ? "active" : ""}
+          onClick={close}
+        >
           Acerca de
         </Link>
         <Link href="/auth" className={isActive(pathname, "auth") ? "active" : ""} onClick={close}>
-          {user ? "Cuenta" : "Iniciar Sesión"}
+          {!loading && user ? "Cuenta" : "Iniciar Sesión"}
         </Link>
         <div style={{ flex: 1 }}></div>
-        <div className="pixel" style={{ fontSize: 9, color: "var(--ink-faint)", letterSpacing: "0.16em" }}>
+        <div
+          className="pixel"
+          style={{ fontSize: 9, color: "var(--ink-faint)", letterSpacing: "0.16em" }}
+        >
           CRÉDITOS · 03
         </div>
       </aside>

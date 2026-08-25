@@ -1,93 +1,97 @@
 "use client";
 
-import { createContext, useCallback, useContext, useSyncExternalStore, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
+import { createClient } from "@/lib/supabase/client";
 
-export type User = { name: string };
-export type ScoreEntry = { game: string; score: number; name: string; at: number };
+export type Profile = { id: string; email: string; nickname: string };
 
 type SessionContextValue = {
-  user: User | null;
-  signIn: (user: User | null) => void;
-  signOut: () => void;
-  saveScore: (entry: Omit<ScoreEntry, "at">) => void;
+  user: Profile | null;
+  loading: boolean;
+  signUp: (
+    email: string,
+    password: string,
+    nickname: string,
+  ) => Promise<{ error: string | null; needsConfirmation: boolean }>;
+  signIn: (email: string, password: string) => Promise<{ error: string | null }>;
+  signOut: () => Promise<void>;
 };
 
 const SessionContext = createContext<SessionContextValue | null>(null);
 
-const USER_KEY = "av_user";
-const SCORES_KEY = "av_scores";
-
-type Listener = () => void;
-let listeners: Listener[] = [];
-let cachedRaw: string | null = null;
-let cachedUser: User | null = null;
-
-function readUser(): User | null {
-  let raw: string | null;
-  try {
-    raw = localStorage.getItem(USER_KEY);
-  } catch {
-    raw = null;
-  }
-  if (raw !== cachedRaw) {
-    cachedRaw = raw;
-    try {
-      cachedUser = raw ? JSON.parse(raw) : null;
-    } catch {
-      cachedUser = null;
-    }
-  }
-  return cachedUser;
-}
-
-function getServerUser(): User | null {
-  return null;
-}
-
-function subscribe(listener: Listener) {
-  listeners.push(listener);
-  return () => {
-    listeners = listeners.filter((l) => l !== listener);
-  };
-}
-
-function notifyListeners() {
-  for (const listener of listeners) listener();
-}
-
 export function SessionProvider({ children }: { children: ReactNode }) {
-  const user = useSyncExternalStore(subscribe, readUser, getServerUser);
+  const [supabase] = useState(() => createClient());
+  const [user, setUser] = useState<Profile | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const signIn = useCallback((nextUser: User | null) => {
-    try {
-      localStorage.setItem(USER_KEY, JSON.stringify(nextUser));
-    } catch {
-      // localStorage inaccesible (modo privado, cuota agotada): la sesión no persiste
-    }
-    notifyListeners();
-  }, []);
+  useEffect(() => {
+    let active = true;
 
-  const signOut = useCallback(() => {
-    try {
-      localStorage.removeItem(USER_KEY);
-    } catch {
-      // localStorage inaccesible
+    async function applySession(sessionUser: { id: string; email?: string } | null) {
+      if (!sessionUser) {
+        if (active) {
+          setUser(null);
+          setLoading(false);
+        }
+        return;
+      }
+      const { data } = await supabase
+        .from("profiles")
+        .select("nickname")
+        .eq("id", sessionUser.id)
+        .single<{ nickname: string }>();
+      if (!active) return;
+      setUser({
+        id: sessionUser.id,
+        email: sessionUser.email ?? "",
+        nickname: data?.nickname ?? "",
+      });
+      setLoading(false);
     }
-    notifyListeners();
-  }, []);
 
-  const saveScore = useCallback((entry: Omit<ScoreEntry, "at">) => {
-    try {
-      const all: ScoreEntry[] = JSON.parse(localStorage.getItem(SCORES_KEY) || "[]");
-      all.push({ ...entry, at: Date.now() });
-      localStorage.setItem(SCORES_KEY, JSON.stringify(all));
-    } catch {
-      // localStorage inaccesible: la puntuación no persiste en esta sesión
-    }
-  }, []);
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      applySession(session?.user ?? null);
+    });
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      applySession(session?.user ?? null);
+    });
+
+    return () => {
+      active = false;
+      subscription.unsubscribe();
+    };
+  }, [supabase]);
+
+  const signUp = useCallback(
+    async (email: string, password: string, nickname: string) => {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: { data: { nickname } },
+      });
+      if (error) return { error: error.message, needsConfirmation: false };
+      return { error: null, needsConfirmation: !data.session };
+    },
+    [supabase],
+  );
+
+  const signIn = useCallback(
+    async (email: string, password: string) => {
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      return { error: error ? error.message : null };
+    },
+    [supabase],
+  );
+
+  const signOut = useCallback(async () => {
+    await supabase.auth.signOut();
+  }, [supabase]);
 
   return (
-    <SessionContext.Provider value={{ user, signIn, signOut, saveScore }}>
+    <SessionContext.Provider value={{ user, loading, signUp, signIn, signOut }}>
       {children}
     </SessionContext.Provider>
   );

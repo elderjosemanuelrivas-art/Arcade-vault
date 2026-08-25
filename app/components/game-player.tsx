@@ -7,15 +7,14 @@ import { useSession } from "./session-provider";
 
 export function GamePlayer({ game }: { game: Game }) {
   const router = useRouter();
-  const { user, saveScore } = useSession();
+  const { user } = useSession();
   const [score, setScore] = useState(0);
   const [lives] = useState(3);
   const [paused, setPaused] = useState(false);
   const [over, setOver] = useState(false);
   const [nameOverride, setNameOverride] = useState<string | null>(null);
-  const [saved, setSaved] = useState(false);
 
-  const name = nameOverride ?? (user ? user.name : "INVITADO");
+  const name = nameOverride ?? (user ? user.nickname : "INVITADO");
   const level = Math.floor(score / 2500) + 1;
 
   useEffect(() => {
@@ -29,7 +28,6 @@ export function GamePlayer({ game }: { game: Game }) {
     setScore(0);
     setPaused(false);
     setOver(false);
-    setSaved(false);
   };
 
   return (
@@ -85,7 +83,12 @@ export function GamePlayer({ game }: { game: Game }) {
                 </div>
                 <div
                   className="mono"
-                  style={{ fontSize: 11, color: "var(--ink-dim)", marginTop: 10, letterSpacing: "0.16em" }}
+                  style={{
+                    fontSize: 11,
+                    color: "var(--ink-dim)",
+                    marginTop: 10,
+                    letterSpacing: "0.16em",
+                  }}
                 >
                   PULSA REANUDAR PARA CONTINUAR
                 </div>
@@ -95,9 +98,7 @@ export function GamePlayer({ game }: { game: Game }) {
         </div>
         <div className="crt-bottom">
           <span className="led">SEÑAL OK</span>
-          <span>
-            {game.title} · CRT-83 · 60 HZ
-          </span>
+          <span>{game.title} · CRT-83 · 60 HZ</span>
           <span>CARGA · 1MB</span>
         </div>
       </div>
@@ -108,26 +109,16 @@ export function GamePlayer({ game }: { game: Game }) {
             <h2>FIN DEL JUEGO</h2>
             <div className="final-label">PUNTUACIÓN FINAL</div>
             <div className="final">{score.toLocaleString("es-ES")}</div>
-            {!saved ? (
-              <div className="input-row">
-                <input
-                  value={name}
-                  onChange={(e) => setNameOverride(e.target.value.toUpperCase().slice(0, 10))}
-                  placeholder="TUS INICIALES"
-                />
-                <button
-                  className="btn yellow"
-                  onClick={() => {
-                    saveScore({ game: game.id, score, name });
-                    setSaved(true);
-                  }}
-                >
-                  GUARDAR PUNTUACIÓN
-                </button>
-              </div>
-            ) : (
-              <div className="toast-saved">▸ PUNTUACIÓN GUARDADA_</div>
-            )}
+            <div className="input-row">
+              <input
+                value={name}
+                onChange={(e) => setNameOverride(e.target.value.toUpperCase().slice(0, 10))}
+                placeholder="TUS INICIALES"
+              />
+              <button className="btn yellow" type="button" disabled title="Disponible próximamente">
+                PRÓXIMAMENTE
+              </button>
+            </div>
             <div className="actions">
               <button className="btn" onClick={restart}>
                 JUGAR DE NUEVO
