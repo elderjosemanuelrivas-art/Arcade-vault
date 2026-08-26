@@ -1,6 +1,6 @@
 # SPEC 05 — Juego real de Asteroids en "Rocas"
 
-> **Status:** approved
+> **Status:** implementado
 > **Depends on:** SPEC 01, SPEC 04
 > **Date:** 2026-08-25
 > **Objective:** Sustituir el reproductor falso de "Rocas" por el juego Asteroids real de `referencias/started-games/02-asteroids/`, portado a TypeScript, manteniendo su HUD y su pantalla de fin de partida dibujados en canvas tal como el original, y notificando en paralelo al HUD y al modal ya existentes en `game-player.tsx`.
