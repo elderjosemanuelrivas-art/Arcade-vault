@@ -641,6 +641,11 @@ a { color: inherit; text-decoration: none; }
   background: radial-gradient(120% 90% at 50% 50%, transparent 60%, rgba(0,0,0,0.65));
   pointer-events: none;
 }
+.crt-screen canvas {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  display: block;
+}
 .crt-content {
   position: absolute; inset: 0;
   display: flex; align-items: center; justify-content: center;
@@ -664,6 +669,14 @@ a { color: inherit; text-decoration: none; }
 .crt-bottom .led::before {
   content: ""; width: 8px; height: 8px; border-radius: 50%;
   background: var(--green); box-shadow: 0 0 6px var(--green);
+}
+.player-kb-note {
+  margin-top: 10px;
+  text-align: center;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  color: var(--ink-faint);
 }
 
 /* fake in-screen game */

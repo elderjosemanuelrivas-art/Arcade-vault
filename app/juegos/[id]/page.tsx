@@ -30,7 +30,7 @@ export default async function Page({ params }: PageProps<"/juegos/[id]">) {
           <div className="detail-tags">
             <span>{game.cat}</span>
             <span>1 JUGADOR</span>
-            <span>TECLADO / TÁCTIL</span>
+            <span>{game.id === "rocas" ? "TECLADO" : "TECLADO / TÁCTIL"}</span>
             <span>RETRO 1985</span>
           </div>
           <h2 className="neon-cyan">{game.title}</h2>
@@ -51,7 +51,10 @@ export default async function Page({ params }: PageProps<"/juegos/[id]">) {
             </div>
             <div>
               <div className="l">Dificultad</div>
-              <div className="v" style={{ color: "var(--yellow)", textShadow: "0 0 6px rgba(245,255,0,0.5)" }}>
+              <div
+                className="v"
+                style={{ color: "var(--yellow)", textShadow: "0 0 6px rgba(245,255,0,0.5)" }}
+              >
                 ★ ★ ★ ☆ ☆
               </div>
             </div>

@@ -1,31 +1,83 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Game } from "@/data/games";
+import type { ArcadeEngine } from "@/lib/games/types";
+import { GAME_ENGINES } from "@/lib/games/registry";
 import { useSession } from "./session-provider";
 
 export function GamePlayer({ game }: { game: Game }) {
   const router = useRouter();
   const { user } = useSession();
+  const hasEngine = game.id in GAME_ENGINES;
+
   const [score, setScore] = useState(0);
-  const [lives] = useState(3);
+  const [lives, setLives] = useState(3);
+  const [engineLevel, setEngineLevel] = useState(1);
   const [paused, setPaused] = useState(false);
   const [over, setOver] = useState(false);
   const [nameOverride, setNameOverride] = useState<string | null>(null);
 
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const engineRef = useRef<ArcadeEngine | null>(null);
+
   const name = nameOverride ?? (user ? user.nickname : "INVITADO");
-  const level = Math.floor(score / 2500) + 1;
+  const level = hasEngine ? engineLevel : Math.floor(score / 2500) + 1;
 
   useEffect(() => {
-    if (over || paused) return;
+    if (hasEngine || over || paused) return;
     const t = setInterval(() => setScore((s) => s + Math.floor(10 + Math.random() * 90)), 220);
     return () => clearInterval(t);
-  }, [over, paused]);
+  }, [hasEngine, over, paused]);
 
-  const endGame = () => setOver(true);
+  useEffect(() => {
+    if (!hasEngine) return;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    let cancelled = false;
+
+    GAME_ENGINES[game.id]().then(({ default: createEngine }) => {
+      if (cancelled) return;
+      engineRef.current = createEngine(canvas, {
+        onScore: setScore,
+        onLives: setLives,
+        onLevel: setEngineLevel,
+        onGameOver: (finalScore) => {
+          setScore(finalScore);
+          setOver(true);
+        },
+        onPause: setPaused,
+      });
+    });
+
+    return () => {
+      cancelled = true;
+      engineRef.current?.destroy();
+      engineRef.current = null;
+    };
+  }, [game.id, hasEngine]);
+
+  const togglePause = () => {
+    if (engineRef.current) {
+      if (paused) engineRef.current.resume();
+      else engineRef.current.pause();
+      return;
+    }
+    setPaused((p) => !p);
+  };
+
+  const endGame = () => {
+    engineRef.current?.pause();
+    setOver(true);
+  };
+
   const restart = () => {
-    setScore(0);
+    if (engineRef.current) {
+      engineRef.current.restart();
+    } else {
+      setScore(0);
+    }
     setPaused(false);
     setOver(false);
   };
@@ -54,7 +106,7 @@ export function GamePlayer({ game }: { game: Game }) {
           </div>
         </div>
         <div className="hud-actions">
-          <button className="btn yellow" onClick={() => setPaused((p) => !p)}>
+          <button className="btn yellow" onClick={togglePause}>
             {paused ? "REANUDAR" : "PAUSA"}
           </button>
           <button className="btn magenta" onClick={endGame}>
@@ -68,13 +120,17 @@ export function GamePlayer({ game }: { game: Game }) {
 
       <div className="crt">
         <div className="crt-screen">
-          <div className="game-arena">
-            <div className="grid-floor"></div>
-            <div className="enemy e1"></div>
-            <div className="enemy e2"></div>
-            <div className="enemy e3"></div>
-            <div className="player-ship"></div>
-          </div>
+          {hasEngine ? (
+            <canvas ref={canvasRef} width={800} height={600} />
+          ) : (
+            <div className="game-arena">
+              <div className="grid-floor"></div>
+              <div className="enemy e1"></div>
+              <div className="enemy e2"></div>
+              <div className="enemy e3"></div>
+              <div className="player-ship"></div>
+            </div>
+          )}
           {paused && (
             <div className="crt-content" style={{ background: "rgba(0,0,0,0.6)", zIndex: 5 }}>
               <div>
@@ -102,6 +158,7 @@ export function GamePlayer({ game }: { game: Game }) {
           <span>CARGA · 1MB</span>
         </div>
       </div>
+      {hasEngine && <p className="player-kb-note">REQUIERE TECLADO</p>}
 
       {over && (
         <div className="modal-bd">
