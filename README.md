@@ -15,3 +15,4 @@ https://github.com/Klerith/fernando-skills
 npx skills@latest add Klerith/fernando-skills
 ```
 
+Además, `/juego-nuevo` es un skill propio del repo (no instalado, vive directamente en `.claude/skills/juego-nuevo/`): diseña el spec para portar un juego jugable nuevo al Vault — motor real, entrada en `lib/games/registry.ts`, assets y el leaderboard existente. Termina escribiendo el spec; la implementación sigue yendo por `/spec-impl`.
