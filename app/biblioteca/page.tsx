@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { getCategories, getGames } from "@/lib/games-data";
 import { Library } from "../components/library";
 
 export const metadata: Metadata = {
@@ -6,6 +7,7 @@ export const metadata: Metadata = {
   description: "Explora la biblioteca de juegos retro de Arcade Vault.",
 };
 
-export default function Page() {
-  return <Library />;
+export default async function Page() {
+  const [games, cats] = await Promise.all([getGames(), getCategories()]);
+  return <Library games={games} cats={cats} />;
 }

@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { GAMES, seededScores } from "@/data/games";
+import { getGame, getGameScores } from "@/lib/games-data";
 import { Leaderboard } from "@/app/components/leaderboard";
 
 export async function generateMetadata({ params }: PageProps<"/juegos/[id]">): Promise<Metadata> {
   const { id } = await params;
-  const game = GAMES.find((g) => g.id === id);
+  const game = await getGame(id);
   return {
     title: game ? `Arcade Vault · ${game.title}` : "Arcade Vault",
     description: game?.short ?? "Ficha de juego de Arcade Vault.",
@@ -15,10 +15,10 @@ export async function generateMetadata({ params }: PageProps<"/juegos/[id]">): P
 
 export default async function Page({ params }: PageProps<"/juegos/[id]">) {
   const { id } = await params;
-  const game = GAMES.find((g) => g.id === id);
+  const game = await getGame(id);
   if (!game) notFound();
 
-  const scores = seededScores(id.length * 17 + 3, 10);
+  const scores = await getGameScores(id, 10);
 
   return (
     <div className="av-detail fade-in">

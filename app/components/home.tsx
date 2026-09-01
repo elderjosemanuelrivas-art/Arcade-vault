@@ -1,11 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { GAMES, HOME_STATS, HOME_TICKER, HOME_TOP, type Game } from "@/data/games";
+import type { Game, TickerRow, TopRow } from "@/lib/games-data";
 import { FeatureIcon, FloatingSilhouettes } from "./pixel-icons";
 import { useReveal } from "./use-reveal";
 
-const FEATURES: { icon: "GAMEPAD" | "FREE" | "TROPHY" | "ROCKET"; title: string; desc: string; color: string }[] = [
+const FEATURES: {
+  icon: "GAMEPAD" | "FREE" | "TROPHY" | "ROCKET";
+  title: string;
+  desc: string;
+  color: string;
+}[] = [
   {
     icon: "GAMEPAD",
     title: "JUEGOS CLÁSICOS",
@@ -46,8 +51,24 @@ function MiniCard({ game }: { game: Game }) {
   );
 }
 
-export function Home() {
+export function Home({
+  games,
+  recentScores,
+  topPlayers,
+  siteStats,
+}: {
+  games: Game[];
+  recentScores: TickerRow[];
+  topPlayers: TopRow[];
+  siteStats: { gameCount: number; playCount: number };
+}) {
   useReveal();
+
+  const stats: { n: string; unit: string; sub: string }[] = [
+    { n: String(siteStats.gameCount), unit: "JUEGOS", sub: "Y CONTANDO" },
+    { n: String(siteStats.playCount), unit: "PARTIDAS", sub: "JUGADAS EN TOTAL" },
+    { n: "GLOBAL", unit: "RANKING", sub: "COMPITE CON EL MUNDO" },
+  ];
 
   return (
     <div className="home fade-in">
@@ -92,7 +113,11 @@ export function Home() {
         </div>
         <div className="feature-grid">
           {FEATURES.map((f, i) => (
-            <div key={f.title} className={"feature-card " + f.color} style={{ transitionDelay: i * 80 + "ms" }}>
+            <div
+              key={f.title}
+              className={"feature-card " + f.color}
+              style={{ transitionDelay: i * 80 + "ms" }}
+            >
               <FeatureIcon kind={f.icon} />
               <div className="ft-title pixel">{f.title}</div>
               <div className="ft-desc">{f.desc}</div>
@@ -109,7 +134,7 @@ export function Home() {
           <div className="section-rule"></div>
         </div>
         <div className="mini-rail">
-          {GAMES.slice(0, 6).map((g) => (
+          {games.slice(0, 6).map((g) => (
             <MiniCard key={g.id} game={g} />
           ))}
         </div>
@@ -123,7 +148,7 @@ export function Home() {
       {/* STATS */}
       <section className="home-stats reveal">
         <div className="stats-inner">
-          {HOME_STATS.map((st, i) => (
+          {stats.map((st, i) => (
             <div key={st.unit} className="stat-block" style={{ transitionDelay: i * 90 + "ms" }}>
               <div className="stat-n neon-yellow">{st.n}</div>
               <div className="stat-u pixel">{st.unit}</div>
@@ -146,14 +171,24 @@ export function Home() {
               <div className="ac-title pixel">▸ ÚLTIMAS PUNTUACIONES</div>
             </div>
             <div className="ticker">
-              {HOME_TICKER.map((r, i) => (
-                <div key={r.player + r.when} className="tick-row" style={{ animationDelay: i * 60 + "ms" }}>
-                  <span className={"tk-p neon-" + r.color}>{r.player}</span>
-                  <span className="tk-mid">▸ {r.game}</span>
-                  <span className="tk-s">+{r.score.toLocaleString("es-ES")}</span>
-                  <span className="tk-t">{r.when}</span>
+              {recentScores.length === 0 ? (
+                <div style={{ padding: "24px 0", textAlign: "center", color: "var(--ink-faint)" }}>
+                  TODAVÍA NO HAY PARTIDAS — SÉ EL PRIMERO
                 </div>
-              ))}
+              ) : (
+                recentScores.map((r, i) => (
+                  <div
+                    key={r.player + r.when + i}
+                    className="tick-row"
+                    style={{ animationDelay: i * 60 + "ms" }}
+                  >
+                    <span className={"tk-p neon-" + r.color}>{r.player}</span>
+                    <span className="tk-mid">▸ {r.game}</span>
+                    <span className="tk-s">+{r.score.toLocaleString("es-ES")}</span>
+                    <span className="tk-t">{r.when}</span>
+                  </div>
+                ))
+              )}
             </div>
           </div>
 
@@ -165,13 +200,24 @@ export function Home() {
               </Link>
             </div>
             <div className="top-list">
-              {HOME_TOP.map((r, i) => (
-                <div key={r.player} className={"top-row" + (i === 0 ? " top1" : i === 1 ? " top2" : i === 2 ? " top3" : "")}>
-                  <span className="tp-rk">#{String(r.rank).padStart(2, "0")}</span>
-                  <span className="tp-p">{r.player}</span>
-                  <span className="tp-s">{r.score.toLocaleString("es-ES")}</span>
+              {topPlayers.length === 0 ? (
+                <div style={{ padding: "24px 0", textAlign: "center", color: "var(--ink-faint)" }}>
+                  TODAVÍA NO HAY PARTIDAS — SÉ EL PRIMERO
                 </div>
-              ))}
+              ) : (
+                topPlayers.map((r, i) => (
+                  <div
+                    key={r.player}
+                    className={
+                      "top-row" + (i === 0 ? " top1" : i === 1 ? " top2" : i === 2 ? " top3" : "")
+                    }
+                  >
+                    <span className="tp-rk">#{String(r.rank).padStart(2, "0")}</span>
+                    <span className="tp-p">{r.player}</span>
+                    <span className="tp-s">{r.score.toLocaleString("es-ES")}</span>
+                  </div>
+                ))
+              )}
             </div>
           </div>
         </div>
@@ -216,20 +262,23 @@ export function Home() {
             <div className="faq-item">
               <div className="faq-q pixel">¿REALMENTE ES GRATIS?</div>
               <div className="faq-a">
-                Sí. Arcade Vault es un proyecto sin fines de lucro hecho por amor a los clásicos. No hay versión
-                &quot;premium&quot; escondida.
+                Sí. Arcade Vault es un proyecto sin fines de lucro hecho por amor a los clásicos. No
+                hay versión &quot;premium&quot; escondida.
               </div>
             </div>
             <div className="faq-item">
               <div className="faq-q pixel">¿NECESITO CREAR CUENTA?</div>
               <div className="faq-a">
-                No. Puedes jugar como invitado. Si quieres guardar tu puntuación y aparecer en el ranking,
-                regístrate en 10 segundos.
+                No. Puedes jugar como invitado. Si quieres guardar tu puntuación y aparecer en el
+                ranking, regístrate en 10 segundos.
               </div>
             </div>
             <div className="faq-item">
               <div className="faq-q pixel">¿CÓMO SOBREVIVEN SIN COBRAR?</div>
-              <div className="faq-a">Es un proyecto comunitario. Si te gusta, compártelo. Esa es toda la moneda que aceptamos.</div>
+              <div className="faq-a">
+                Es un proyecto comunitario. Si te gusta, compártelo. Esa es toda la moneda que
+                aceptamos.
+              </div>
             </div>
           </div>
         </div>

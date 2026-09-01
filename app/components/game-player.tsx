@@ -1,28 +1,33 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import type { Game } from "@/data/games";
+import type { Game } from "@/lib/games-data";
 import type { ArcadeEngine } from "@/lib/games/types";
 import { GAME_ENGINES } from "@/lib/games/registry";
+import { createClient } from "@/lib/supabase/client";
 import { useSession } from "./session-provider";
+
+type SaveState = "idle" | "saving" | "saved" | "error";
 
 export function GamePlayer({ game }: { game: Game }) {
   const router = useRouter();
   const { user } = useSession();
   const hasEngine = game.id in GAME_ENGINES;
 
+  const [supabase] = useState(() => createClient());
   const [score, setScore] = useState(0);
   const [lives, setLives] = useState(3);
   const [engineLevel, setEngineLevel] = useState(1);
   const [paused, setPaused] = useState(false);
   const [over, setOver] = useState(false);
-  const [nameOverride, setNameOverride] = useState<string | null>(null);
+  const [saveState, setSaveState] = useState<SaveState>("idle");
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const engineRef = useRef<ArcadeEngine | null>(null);
 
-  const name = nameOverride ?? (user ? user.nickname : "INVITADO");
+  const name = user ? user.nickname : "INVITADO";
   const level = hasEngine ? engineLevel : Math.floor(score / 2500) + 1;
 
   useEffect(() => {
@@ -58,6 +63,20 @@ export function GamePlayer({ game }: { game: Game }) {
     };
   }, [game.id, hasEngine]);
 
+  const attemptSave = useCallback(async () => {
+    if (!user) return;
+    setSaveState("saving");
+    const { error } = await supabase
+      .from("scores")
+      .insert({ user_id: user.id, game_id: game.id, score });
+    setSaveState(error ? "error" : "saved");
+  }, [supabase, user, game.id, score]);
+
+  useEffect(() => {
+    if (!hasEngine || !over || !user) return;
+    Promise.resolve().then(() => attemptSave());
+  }, [hasEngine, over, user, attemptSave]);
+
   const togglePause = () => {
     if (engineRef.current) {
       if (paused) engineRef.current.resume();
@@ -78,6 +97,7 @@ export function GamePlayer({ game }: { game: Game }) {
     } else {
       setScore(0);
     }
+    setSaveState("idle");
     setPaused(false);
     setOver(false);
   };
@@ -166,16 +186,32 @@ export function GamePlayer({ game }: { game: Game }) {
             <h2>FIN DEL JUEGO</h2>
             <div className="final-label">PUNTUACIÓN FINAL</div>
             <div className="final">{score.toLocaleString("es-ES")}</div>
-            <div className="input-row">
-              <input
-                value={name}
-                onChange={(e) => setNameOverride(e.target.value.toUpperCase().slice(0, 10))}
-                placeholder="TUS INICIALES"
-              />
-              <button className="btn yellow" type="button" disabled title="Disponible próximamente">
-                PRÓXIMAMENTE
-              </button>
-            </div>
+            {hasEngine && (
+              <div className="input-row">
+                {!user ? (
+                  <Link
+                    className="btn yellow"
+                    href="/auth"
+                    style={{ flex: 1, textAlign: "center" }}
+                  >
+                    INICIA SESIÓN PARA GUARDAR
+                  </Link>
+                ) : (
+                  <button
+                    className="btn yellow"
+                    type="button"
+                    disabled={saveState !== "error"}
+                    onClick={saveState === "error" ? attemptSave : undefined}
+                  >
+                    {saveState === "saved"
+                      ? "GUARDADO ✓"
+                      : saveState === "error"
+                        ? "REINTENTAR"
+                        : "GUARDANDO…"}
+                  </button>
+                )}
+              </div>
+            )}
             <div className="actions">
               <button className="btn" onClick={restart}>
                 JUGAR DE NUEVO
