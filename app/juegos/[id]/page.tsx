@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getGame, getGameScores } from "@/lib/games-data";
+import { GAME_ENGINES } from "@/lib/games/registry";
 import { Leaderboard } from "@/app/components/leaderboard";
 
 export async function generateMetadata({ params }: PageProps<"/juegos/[id]">): Promise<Metadata> {
@@ -30,7 +31,7 @@ export default async function Page({ params }: PageProps<"/juegos/[id]">) {
           <div className="detail-tags">
             <span>{game.cat}</span>
             <span>1 JUGADOR</span>
-            <span>{game.id === "rocas" ? "TECLADO" : "TECLADO / TÁCTIL"}</span>
+            <span>{game.id in GAME_ENGINES ? "TECLADO" : "TECLADO / TÁCTIL"}</span>
             <span>RETRO 1985</span>
           </div>
           <h2 className="neon-cyan">{game.title}</h2>

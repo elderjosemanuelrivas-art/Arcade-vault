@@ -92,18 +92,18 @@ El búfer del canvas es 800×600 fijo — lo impone `game-player.tsx:144` (`<can
 
 ## Acceptance criteria
 
-- [ ] `npm run build` y `npm run lint` terminan sin errores ni warnings.
-- [ ] `/juegos/caida/jugar` muestra el `<canvas>` real del juego (tablero + panel + preview de la siguiente pieza), no la arena falsa.
-- [ ] Las flechas, `↑`/`X` y `Space` mueven/rotan/dejan caer la pieza sin producir scroll en la página del reproductor.
-- [ ] Completar una fila la limpia, suma puntos según `LINE_SCORES × level`, y el `SCORE`/`LINES`/`LEVEL` dibujados en el canvas coinciden con el HUD de React (Puntuación y Nivel); Vidas muestra `—`.
-- [ ] Cada 10 líneas el nivel sube y la caída se acelera, reflejado a la vez en el canvas y en el HUD de React.
-- [ ] El botón PAUSA congela el juego y REANUDAR lo continúa; `Escape` y `P` hacen lo mismo desde el teclado; cambiar de pestaña pausa automáticamente.
-- [ ] Al recibir una pieza que no cabe al spawnear, se ve el modal `FIN DEL JUEGO` de React con la misma puntuación que mostraba el canvas justo antes; el canvas no dibuja su propio "GAME OVER".
-- [ ] El botón "JUGAR DE NUEVO" reinicia con tablero vacío, puntuación 0, nivel 1; `Space` en ese estado no reinicia.
-- [ ] Recargar `/juegos/caida/jugar` en modo desarrollo (React Strict Mode) no duplica el bucle ni produce errores en consola.
-- [ ] Salir del reproductor detiene el bucle de animación y retira los listeners de teclado.
-- [ ] Jugando con sesión iniciada, la puntuación aparece en `public.scores` y se refleja en `/juegos/caida` (mejor global), `/salon` y el ticker de la landing.
-- [ ] `rocas` sigue jugable sin cambios de comportamiento; el resto del catálogo sigue mostrando la arena falsa.
+- [x] `npm run build` y `npm run lint` terminan sin errores ni warnings.
+- [x] `/juegos/caida/jugar` muestra el `<canvas>` real del juego (tablero + panel + preview de la siguiente pieza), no la arena falsa.
+- [x] Las flechas, `↑`/`X` y `Space` mueven/rotan/dejan caer la pieza sin producir scroll en la página del reproductor.
+- [x] Completar una fila la limpia, suma puntos según `LINE_SCORES × level`, y el `SCORE`/`LINES`/`LEVEL` dibujados en el canvas coinciden con el HUD de React (Puntuación y Nivel); Vidas muestra `—`.
+- [ ] Cada 10 líneas el nivel sube y la caída se acelera, reflejado a la vez en el canvas y en el HUD de React. _(pendiente de comprobar con una partida real sostenida; la fórmula está portada 1:1 de `game.js`, sin probar en vivo)_
+- [x] El botón PAUSA congela el juego y REANUDAR lo continúa; `Escape` y `P` hacen lo mismo desde el teclado; cambiar de pestaña pausa automáticamente.
+- [x] Al recibir una pieza que no cabe al spawnear, se ve el modal `FIN DEL JUEGO` de React con la misma puntuación que mostraba el canvas justo antes; el canvas no dibuja su propio "GAME OVER".
+- [x] El botón "JUGAR DE NUEVO" reinicia con tablero vacío, puntuación 0, nivel 1; `Space` en ese estado no reinicia.
+- [x] Recargar `/juegos/caida/jugar` en modo desarrollo (React Strict Mode) no duplica el bucle ni produce errores en consola.
+- [x] Salir del reproductor detiene el bucle de animación y retira los listeners de teclado.
+- [ ] Jugando con sesión iniciada, la puntuación aparece en `public.scores` y se refleja en `/juegos/caida` (mejor global), `/salon` y el ticker de la landing. _(pendiente de comprobar con una cuenta real; usa el mismo cableado de `game-player.tsx` ya validado en `rocas`)_
+- [x] `rocas` sigue jugable sin cambios de comportamiento; el resto del catálogo sigue mostrando la arena falsa.
 
 ## Decisions taken and discarded
 
