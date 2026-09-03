@@ -1,0 +1,55 @@
+- generic [active] [ref=f8e1]:
+  - generic [ref=f8e2]:
+    - navigation [ref=f8e3]:
+      - link "ARCADE VAULT" [ref=f8e4] [cursor=pointer]:
+        - /url: /
+      - generic [ref=f8e7]:
+        - link "Inicio" [ref=f8e8] [cursor=pointer]:
+          - /url: /
+        - link "Biblioteca" [ref=f8e9] [cursor=pointer]:
+          - /url: /biblioteca
+        - link "Salón de la Fama" [ref=f8e10] [cursor=pointer]:
+          - /url: /salon
+        - link "Acerca de" [ref=f8e11] [cursor=pointer]:
+          - /url: /acerca
+      - generic [ref=f8e12]: CRÉDITOS · 03
+    - complementary [ref=f8e15]:
+      - generic [ref=f8e16]: MENÚ
+      - link "Inicio" [ref=f8e17] [cursor=pointer]:
+        - /url: /
+      - link "Biblioteca" [ref=f8e18] [cursor=pointer]:
+        - /url: /biblioteca
+      - link "Salón de la Fama" [ref=f8e19] [cursor=pointer]:
+        - /url: /salon
+      - link "Acerca de" [ref=f8e20] [cursor=pointer]:
+        - /url: /acerca
+      - link "Iniciar Sesión" [ref=f8e21] [cursor=pointer]:
+        - /url: /auth
+      - generic [ref=f8e23]: CRÉDITOS · 03
+    - main [ref=f8e24]:
+      - generic [ref=f8e25]:
+        - generic [ref=f8e26]:
+          - generic [ref=f8e27]:
+            - generic [ref=f8e28]:
+              - generic [ref=f8e29]: Jugador
+              - generic [ref=f8e30]: INVITADO
+            - generic [ref=f8e31]:
+              - generic [ref=f8e32]: Puntuación
+              - generic [ref=f8e33]: "0"
+            - generic [ref=f8e34]:
+              - generic [ref=f8e35]: Vidas
+              - generic [ref=f8e36]: ♥ ♥ ♥
+            - generic [ref=f8e37]:
+              - generic [ref=f8e38]: Nivel
+              - generic [ref=f8e39]: "01"
+          - generic [ref=f8e40]:
+            - button "PAUSA" [ref=f8e41] [cursor=pointer]
+            - button "FIN" [ref=f8e42] [cursor=pointer]
+            - button "SALIR" [ref=f8e43] [cursor=pointer]
+        - generic [ref=f8e47]:
+          - generic [ref=f8e48]: SEÑAL OK
+          - generic [ref=f8e49]: BLOQUE BUSTER · CRT-83 · 60 HZ
+          - generic [ref=f8e50]: CARGA · 1MB
+        - paragraph [ref=f8e51]: REQUIERE TECLADO
+    - contentinfo [ref=f8e52]: © 2026 ARCADE VAULT · HECHO CON PIXELES Y NEÓN · v2.6.0
+  - button "Open Next.js Dev Tools" [ref=f8e58] [cursor=pointer]
