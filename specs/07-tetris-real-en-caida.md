@@ -3,6 +3,12 @@
 > **Status:** aprobado
 > **Depends on:** SPEC 05, SPEC 06
 > **Date:** 2026-09-01
+> **Nota post-implementación (2026-09-03):** el catálogo se renombró de `caida`/"CAÍDA" a
+> `tetris`/"TETRIS" tras cerrar la implementación de este spec, a pedido explícito del usuario. El
+> resto de este documento conserva el nombre original (`caida`) al describir la historia y las
+> decisiones tal como estaban en el momento de escribirlo; solo las rutas y fragmentos de código de
+> abajo que siguen siendo datos operativos activos (URLs, snippet de `registry.ts`) se actualizaron
+> a `tetris` para no quedar apuntando a un id que ya no existe.
 > **Objective:** Sustituir el reproductor falso de "Caída" por el juego de piezas que caen de `referencias/started-games/03-tetris/`, portado a TypeScript sobre el contrato `ArcadeEngine` fijado en el SPEC 05, con tablero y panel de estado dibujados en letterbox dentro del búfer 800×600 fijo de `game-player.tsx`, y con la puntuación cayendo en `public.scores` como cualquier otro juego del SPEC 06.
 
 ## Por qué este spec existe
@@ -70,7 +76,7 @@ export type EngineFactory = (canvas: HTMLCanvasElement, callbacks: EngineCallbac
 // lib/games/registry.ts, tras este spec
 export const GAME_ENGINES: Record<string, () => Promise<{ default: EngineFactory }>> = {
   rocas: () => import("@/lib/games/asteroids"),
-  caida: () => import("@/lib/games/tetris"),
+  tetris: () => import("@/lib/games/tetris"),
 };
 ```
 
@@ -93,16 +99,16 @@ El búfer del canvas es 800×600 fijo — lo impone `game-player.tsx:144` (`<can
 ## Acceptance criteria
 
 - [x] `npm run build` y `npm run lint` terminan sin errores ni warnings.
-- [x] `/juegos/caida/jugar` muestra el `<canvas>` real del juego (tablero + panel + preview de la siguiente pieza), no la arena falsa.
+- [x] `/juegos/tetris/jugar` muestra el `<canvas>` real del juego (tablero + panel + preview de la siguiente pieza), no la arena falsa.
 - [x] Las flechas, `↑`/`X` y `Space` mueven/rotan/dejan caer la pieza sin producir scroll en la página del reproductor.
 - [x] Completar una fila la limpia, suma puntos según `LINE_SCORES × level`, y el `SCORE`/`LINES`/`LEVEL` dibujados en el canvas coinciden con el HUD de React (Puntuación y Nivel); Vidas muestra `—`.
 - [ ] Cada 10 líneas el nivel sube y la caída se acelera, reflejado a la vez en el canvas y en el HUD de React. _(pendiente de comprobar con una partida real sostenida; la fórmula está portada 1:1 de `game.js`, sin probar en vivo)_
 - [x] El botón PAUSA congela el juego y REANUDAR lo continúa; `Escape` y `P` hacen lo mismo desde el teclado; cambiar de pestaña pausa automáticamente.
 - [x] Al recibir una pieza que no cabe al spawnear, se ve el modal `FIN DEL JUEGO` de React con la misma puntuación que mostraba el canvas justo antes; el canvas no dibuja su propio "GAME OVER".
 - [x] El botón "JUGAR DE NUEVO" reinicia con tablero vacío, puntuación 0, nivel 1; `Space` en ese estado no reinicia.
-- [x] Recargar `/juegos/caida/jugar` en modo desarrollo (React Strict Mode) no duplica el bucle ni produce errores en consola.
+- [x] Recargar `/juegos/tetris/jugar` en modo desarrollo (React Strict Mode) no duplica el bucle ni produce errores en consola.
 - [x] Salir del reproductor detiene el bucle de animación y retira los listeners de teclado.
-- [ ] Jugando con sesión iniciada, la puntuación aparece en `public.scores` y se refleja en `/juegos/caida` (mejor global), `/salon` y el ticker de la landing. _(pendiente de comprobar con una cuenta real; usa el mismo cableado de `game-player.tsx` ya validado en `rocas`)_
+- [ ] Jugando con sesión iniciada, la puntuación aparece en `public.scores` y se refleja en `/juegos/tetris` (mejor global), `/salon` y el ticker de la landing. _(pendiente de comprobar con una cuenta real; usa el mismo cableado de `game-player.tsx` ya validado en `rocas`)_
 - [x] `rocas` sigue jugable sin cambios de comportamiento; el resto del catálogo sigue mostrando la arena falsa.
 
 ## Decisions taken and discarded

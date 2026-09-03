@@ -2,5 +2,5 @@ import type { EngineFactory } from "@/lib/games/types";
 
 export const GAME_ENGINES: Record<string, () => Promise<{ default: EngineFactory }>> = {
   rocas: () => import("@/lib/games/asteroids"),
-  caida: () => import("@/lib/games/tetris"),
+  tetris: () => import("@/lib/games/tetris"),
 };
