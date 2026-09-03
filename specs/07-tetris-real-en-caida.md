@@ -1,6 +1,6 @@
 # SPEC 07 — Tetris real en "Caída"
 
-> **Status:** aprobado
+> **Status:** implementado
 > **Depends on:** SPEC 05, SPEC 06
 > **Date:** 2026-09-01
 > **Nota post-implementación (2026-09-03):** el catálogo se renombró de `caida`/"CAÍDA" a
