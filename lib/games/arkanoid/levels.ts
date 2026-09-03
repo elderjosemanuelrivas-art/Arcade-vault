@@ -1,4 +1,4 @@
-import type { BlockColor } from "@/lib/games/bloque-buster/sprites";
+import type { BlockColor } from "@/lib/games/arkanoid/sprites";
 
 export type BlockLayout = { col: number; row: number; color: BlockColor };
 export type Level = { speed: number; blocks: BlockLayout[] };

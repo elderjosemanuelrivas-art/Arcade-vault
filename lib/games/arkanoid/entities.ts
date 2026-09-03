@@ -1,5 +1,5 @@
-import type { BlockColor } from "@/lib/games/bloque-buster/sprites";
-import type { Level } from "@/lib/games/bloque-buster/levels";
+import type { BlockColor } from "@/lib/games/arkanoid/sprites";
+import type { Level } from "@/lib/games/arkanoid/levels";
 
 export const PADDLE_SPEED = 400;
 export const BLOCK_COLS = 10;

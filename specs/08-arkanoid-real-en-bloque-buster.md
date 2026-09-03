@@ -3,6 +3,16 @@
 > **Status:** implementado
 > **Depends on:** SPEC 05, SPEC 06
 > **Date:** 2026-09-03
+> **Nota post-implementación (2026-09-03):** el catálogo se renombró de `bloque-buster`/"BLOQUE
+> BUSTER" a `arkanoid`/"ARKANOID" tras cerrar la implementación de este spec, a pedido explícito
+> del usuario — mismo patrón que el SPEC 07 aplicó a `caida` → `tetris`. A diferencia de aquel caso,
+> aquí también se movieron rutas reales en disco: `lib/games/bloque-buster/` → `lib/games/arkanoid/`
+> y `public/juegos/bloque-buster/` → `public/juegos/arkanoid/` (el spec original nombró la carpeta
+> igual que el slot de catálogo de entonces, en vez de por el nombre del juego). El resto de este
+> documento conserva el nombre original (`bloque-buster`) al describir la historia y las decisiones
+> tal como estaban en el momento de escribirlo; solo el snippet de `registry.ts` y las URLs de
+> criterios de aceptación de abajo, que siguen siendo datos operativos activos, se actualizaron a
+> `arkanoid` para no quedar apuntando a un id o una ruta que ya no existen.
 > **Objective:** Sustituir el reproductor falso de "bloque-buster" por el juego Arkanoid real de `referencias/started-games/04-arkanoid/`, portado a TypeScript sobre el contrato `ArcadeEngine` fijado en el SPEC 05, con su buffer nativo 800×600 (ya 4:3, sin letterbox), controles solo de teclado, sprites y sonido portados a `public/juegos/bloque-buster/`, y puntuación cayendo en `public.scores` como cualquier otro juego del SPEC 06.
 
 ## Por qué este spec existe
@@ -72,11 +82,11 @@ export type EngineFactory = (canvas: HTMLCanvasElement, callbacks: EngineCallbac
 ```
 
 ```ts
-// lib/games/registry.ts, tras este spec
+// lib/games/registry.ts, tras este spec y el renombrado post-implementación
 export const GAME_ENGINES: Record<string, () => Promise<{ default: EngineFactory }>> = {
   rocas: () => import("@/lib/games/asteroids"),
   tetris: () => import("@/lib/games/tetris"),
-  "bloque-buster": () => import("@/lib/games/bloque-buster"),
+  arkanoid: () => import("@/lib/games/arkanoid"),
 };
 ```
 
@@ -99,7 +109,7 @@ Las constantes de balance del juego original se portan con el mismo valor, sin a
 ## Acceptance criteria
 
 - [x] `npm run build` y `npm run lint` terminan sin errores ni warnings.
-- [x] `/juegos/bloque-buster/jugar` muestra el `<canvas>` real del juego (paleta, pelota y bloques del nivel 1), no la arena falsa.
+- [x] `/juegos/arkanoid/jugar` muestra el `<canvas>` real del juego (paleta, pelota y bloques del nivel 1), no la arena falsa.
 - [x] Las flechas mueven la paleta sin producir scroll en la página del reproductor; mover el mouse sobre el canvas o hacer click no tiene ningún efecto. _(verificado con Playwright: `ArrowLeft` sostenida 150ms mueve la paleta de x=360 a x=300 — 400px/s, igual a `PADDLE_SPEED` — y `mousemove`/`click` sobre el canvas no cambian su posición.)_
 - [x] Romper un bloque suma 10 puntos, dispara la animación de explosión de 4 frames, y el `SCORE` dibujado en el canvas coincide con el HUD de React (Puntuación). _(incrementos de 10 en 10 confirmados en vivo; la animación de 4 frames se da por buena por lectura de código — dura 150ms, demasiado breve para capturarla en una captura de pantalla puntual.)_
 - [x] Perder la pelota resta una vida reflejada a la vez en el canvas y en el HUD de React; al llegar a 0 vidas aparece el modal `FIN DEL JUEGO` de React con la misma puntuación, sin ningún overlay propio dibujado en el canvas.
@@ -109,9 +119,9 @@ Las constantes de balance del juego original se portan con el mismo valor, sin a
 - [x] El botón "JUGAR DE NUEVO" reinicia con nivel 1, 3 vidas y 0 puntos. _(se detectó y corrigió un bug real durante esta verificación: `initGame()` reseteaba `lastEmitted` a los mismos valores frescos, así que `emitChanges()` nunca detectaba el "cambio" y el HUD de React quedaba con los valores de la partida anterior hasta el próximo evento real. Arreglado quitando ese reset — igual que `AsteroidsGame`, que nunca toca `lastEmitted` en `initGame()` — para que el próximo frame sí detecte la diferencia y reemita.)_
 - [x] Los sonidos de rebote y de rotura de bloque se escuchan durante la partida. _(la ruta de audio se ejecuta sin que `play()` rechace la promesa ni la consola muestre errores; el sonido audible en sí no se verificó de oído — requiere una pasada humana.)_
 - [x] Salir del reproductor a mitad de un sonido lo detiene de inmediato (no sigue sonando tras navegar a otra ruta). _(cobertura de código: `destroy()` recorre `activeSounds` y llama `.pause()`; no verificado de oído.)_
-- [x] Recargar `/juegos/bloque-buster/jugar` en modo desarrollo (React Strict Mode) no duplica el bucle, no produce errores en consola, y no se percibe una segunda carga visible del spritesheet. _(múltiples recargas durante esta sesión, cero errores/warnings de la app en consola, progreso de puntuación consistente con una sola instancia del bucle.)_
+- [x] Recargar `/juegos/arkanoid/jugar` en modo desarrollo (React Strict Mode) no duplica el bucle, no produce errores en consola, y no se percibe una segunda carga visible del spritesheet. _(múltiples recargas durante esta sesión, cero errores/warnings de la app en consola, progreso de puntuación consistente con una sola instancia del bucle.)_
 - [x] Salir del reproductor detiene el bucle de animación y retira los listeners de teclado. _(verificado con el botón SALIR —navegación cliente, no recarga completa— seguido de un despacho manual de `ArrowLeft`: cero errores en consola.)_
-- [ ] Jugando con sesión iniciada, la puntuación aparece en `public.scores` y se refleja en `/juegos/bloque-buster` (mejor global), `/salon` y el ticker de la landing. _(pendiente de comprobar con una cuenta real; usa el mismo cableado de `game-player.tsx` ya validado en `rocas` y `tetris`.)_
+- [ ] Jugando con sesión iniciada, la puntuación aparece en `public.scores` y se refleja en `/juegos/arkanoid` (mejor global), `/salon` y el ticker de la landing. _(pendiente de comprobar con una cuenta real; usa el mismo cableado de `game-player.tsx` ya validado en `rocas` y `tetris`.)_
 - [x] `rocas` y `tetris` siguen jugables sin cambios de comportamiento; el resto del catálogo sigue mostrando la arena falsa. _(ambos verificados en vivo tras el cambio de `registry.ts`: cero errores en consola, canvas y HUD funcionando igual que antes.)_
 
 ## Decisions taken and discarded

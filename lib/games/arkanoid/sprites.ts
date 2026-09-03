@@ -94,7 +94,7 @@ export function loadSpritesheet(cb: () => void): void {
     ssCallbacks.forEach((f) => f());
   };
   rawImg.onerror = () => console.error("Failed to load spritesheet");
-  rawImg.src = "/juegos/bloque-buster/spritesheet-breakout.png";
+  rawImg.src = "/juegos/arkanoid/spritesheet-breakout.png";
 }
 
 export function drawFrame(

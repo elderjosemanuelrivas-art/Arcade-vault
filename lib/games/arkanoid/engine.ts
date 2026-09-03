@@ -9,15 +9,15 @@ import {
   loadLevel,
   Paddle,
   PADDLE_SPEED,
-} from "@/lib/games/bloque-buster/entities";
+} from "@/lib/games/arkanoid/entities";
 import {
   drawFrame,
   drawSprite,
   EXPLOSION_DURATION,
   EXPLOSION_FRAMES,
   loadSpritesheet,
-} from "@/lib/games/bloque-buster/sprites";
-import { LEVELS } from "@/lib/games/bloque-buster/levels";
+} from "@/lib/games/arkanoid/sprites";
+import { LEVELS } from "@/lib/games/arkanoid/levels";
 
 type GameState = "playing" | "gameover";
 
@@ -56,8 +56,8 @@ export class ArkanoidGame implements ArcadeEngine {
     if (!ctx) throw new Error("2D context no disponible");
     this.ctx = ctx;
     this.callbacks = callbacks;
-    this.bounceSound = new Audio("/juegos/bloque-buster/ball-bounce.mp3");
-    this.breakSound = new Audio("/juegos/bloque-buster/break-sound.mp3");
+    this.bounceSound = new Audio("/juegos/arkanoid/ball-bounce.mp3");
+    this.breakSound = new Audio("/juegos/arkanoid/break-sound.mp3");
     this.initGame();
 
     window.addEventListener("keydown", this.handleKeyDown);
