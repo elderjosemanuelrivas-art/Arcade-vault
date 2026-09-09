@@ -308,6 +308,11 @@ export class TetrisGame implements ArcadeEngine {
 
   private drawPanel() {
     const ctx = this.ctx;
+    if (this.p.glow) ctx.save();
+    if (this.p.glow) {
+      ctx.shadowColor = this.p.panel;
+      ctx.shadowBlur = this.p.glow;
+    }
     ctx.fillStyle = this.p.panel;
     ctx.font = "15px monospace";
     ctx.textAlign = "left";
@@ -315,6 +320,7 @@ export class TetrisGame implements ArcadeEngine {
     ctx.fillText(`LINES  ${this.lines}`, PANEL_X, 54);
     ctx.fillText(`LEVEL  ${this.level}`, PANEL_X, 78);
     ctx.fillText("NEXT", PANEL_X, 116);
+    if (this.p.glow) ctx.restore();
 
     const shape = this.next.shape;
     const offX = Math.floor((4 - shape[0].length) / 2);

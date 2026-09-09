@@ -87,11 +87,32 @@ código de ese motor, sin normalizar absolutamente nada: `#fff` nunca pasa a `#f
 conserva esa llamada. Prettier no toca el contenido de literales de string, así que el hook
 `PostToolUse` no te lo va a estropear — la exactitud es enteramente tu responsabilidad.
 
-En esta iteración las skins difieren **solo en color y `lineWidth`**. Nunca añadas
-`shadowBlur`/`shadowColor` ni ningún otro estado nuevo de `ctx` para el efecto "neón": rompe la
-Puerta C de la Fase 5, se filtra al HUD si no hay `save()`/`restore()` alrededor de cada trazo, e
-infla el diff sin necesidad. Queda anotado como mejora diferida para un spec futuro, no la hagas
-tú aquí.
+`retro` y `clasico` difieren de hoy **solo en color y `lineWidth`** — nunca les añadas
+`shadowBlur`/`shadowColor`. `neon` sí lleva glow real: la paleta gana un campo `glow: number` (px
+de `ctx.shadowBlur`; **`0` = sin glow**) y, en el motor, cada trazo se bifurca en dos rutas:
+
+```ts
+if (!p.glow) {
+  /* …ruta original, literal, sin ctx.shadow*… */
+  return;
+}
+ctx.save();
+ctx.shadowColor = color;
+ctx.shadowBlur = p.glow;
+/* …el mismo trazo, opcionalmente con una 2ª pasada o un núcleo encima… */
+ctx.restore();
+```
+
+`retro`/`clasico` fijan `glow: 0`, así que toman la rama sin `shadow*` — la ruta original queda
+byte a byte intacta y la Puerta C reformulada (Fase 5) sigue en verde. **Todo trazo con glow va
+envuelto en `save()`/`restore()`** — sin eso el `shadowColor` se filtra al HUD y al resto del
+frame. Nunca dejes `shadowBlur` puesto tras el bevel/núcleo de un bloque (ponlo a `0` antes de
+pintarlo) para que el reflejo se vea nítido y no también difuminado.
+
+Snapea los hues de `neon` a los acentos que `app/globals.css` ya usa para que el juego y la UI se
+lean del mismo tema: `--cyan #00f5ff`, `--magenta #ff006e`, `--yellow #f5ff00`, `--green #00ff88`,
+más los acentos sueltos `#aa00ff` y `#ff7700` (línea 418) y `--silver #c7d0e0` cuando falte un hue
+en la paleta base. No inventes tonos fuera de esa lista para `neon`.
 
 ## Fase 4 — Cablear el motor elegido
 
@@ -250,10 +271,14 @@ Después, tres comprobaciones sobre el motor que tocaste (adapta las rutas al `<
 - **Puerta B — cero literales de color sobreviven fuera de `skins.ts`.** `grep` de esos mismos
   patrones sobre `engine.ts`/`entities.ts`/`sprites.ts` del motor tocado debe salir vacío. Es la
   prueba de que la skin quedó realmente cableada y no hay un literal "de reserva" olvidado.
-- **Puerta C — ningún `ctx.*` se añadió, quitó o reordenó.** Cuenta las ocurrencias de `ctx\.` en
-  el archivo antes (`git show HEAD:...`) y después de tu cambio; deben coincidir exactamente. Un
-  port de skin es una sustitución 1 a 1 de literales por lecturas de paleta — si el conteo se
-  mueve, cambiaste la estructura del render, no solo su color.
+- **Puerta C — la ruta `glow === 0` reproduce el `ctx.*` de `HEAD` tal cual.** Un port de skin es
+  una sustitución 1 a 1 de literales por lecturas de paleta; si el motor no tiene glow (`asteroids`,
+  `arkanoid`, o cualquier juego cuyo `neon` no lo necesite), esto sigue siendo literal: cuenta las
+  ocurrencias de `ctx\.` antes (`git show HEAD:...`) y después, deben coincidir exactamente. Si el
+  motor sí tiene glow, el diff de `ctx.*` solo puede crecer **dentro de la rama `if (p.glow)`**
+  (el `save()`/`shadowColor`/`shadowBlur`/`restore()` que rodea el trazo) — extrae del diff esa
+  rama y confirma que la rama `!p.glow` que queda es idéntica, ocurrencia por ocurrencia y en el
+  mismo orden, a lo que había en `HEAD`.
 
 Por último, `git diff --stat` debe listar **exactamente**: `lib/games/types.ts`, el `skins.ts`
 nuevo del motor elegido, y los archivos de ese mismo motor que tocaste (`engine.ts`, `entities.ts`,

@@ -6,25 +6,28 @@ export type TetrisPalette = {
   bevel: string;
   panel: string;
   pieces: readonly [null, string, string, string, string, string, string, string, string];
+  // px de ctx.shadowBlur para bloques/HUD; 0 = sin glow (ruta original, sin ctx.shadow*).
+  glow: number;
 };
 
 export const SKINS: SkinSet<TetrisPalette> = {
   neon: {
     bg: "#000",
-    grid: "rgba(0, 240, 255, 0.12)",
-    bevel: "rgba(255, 255, 255, 0.25)",
-    panel: "#0ff",
+    grid: "rgba(0, 245, 255, 0.18)",
+    bevel: "rgba(255, 255, 255, 0.55)",
+    panel: "#00f5ff",
     pieces: [
       null,
-      "#00f0ff", // I - cyan
-      "#faff00", // O - yellow
-      "#ff00e6", // T - purple
-      "#39ff14", // S - green
-      "#ff073a", // Z - red
+      "#00f5ff", // I - cyan (--cyan)
+      "#f5ff00", // O - yellow (--yellow)
+      "#aa00ff", // T - purple
+      "#00ff88", // S - green (--green)
+      "#ff006e", // Z - red (--magenta)
       "#3d5aff", // J - pale blue
-      "#ff8c00", // L - orange
-      "#b026ff", // N - tuerca (gris metálico)
+      "#ff7700", // L - orange
+      "#c7d0e0", // N - tuerca (--silver)
     ],
+    glow: 12,
   },
   retro: {
     bg: "#000",
@@ -42,6 +45,7 @@ export const SKINS: SkinSet<TetrisPalette> = {
       "#c98a4b", // L - orange
       "#8a8a7a", // N - tuerca (gris metálico)
     ],
+    glow: 0,
   },
   clasico: {
     bg: "#000",
@@ -59,5 +63,6 @@ export const SKINS: SkinSet<TetrisPalette> = {
       "#ffb74d", // L - orange
       "#9e9e9e", // N - tuerca (gris metálico)
     ],
+    glow: 0,
   },
 };

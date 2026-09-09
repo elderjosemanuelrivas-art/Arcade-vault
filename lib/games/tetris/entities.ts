@@ -102,10 +102,25 @@ export function drawBlock(
 ) {
   if (!colorIndex) return;
   const color = p.pieces[colorIndex];
-  ctx.globalAlpha = alpha ?? 1;
+  const isGhost = alpha !== undefined;
+
+  if (!p.glow || isGhost) {
+    ctx.globalAlpha = alpha ?? 1;
+    ctx.fillStyle = color!;
+    ctx.fillRect(x * size + 1, y * size + 1, size - 2, size - 2);
+    ctx.fillStyle = p.bevel;
+    ctx.fillRect(x * size + 1, y * size + 1, size - 2, 4);
+    ctx.globalAlpha = 1;
+    return;
+  }
+
+  ctx.save();
+  ctx.shadowColor = color!;
+  ctx.shadowBlur = p.glow;
   ctx.fillStyle = color!;
   ctx.fillRect(x * size + 1, y * size + 1, size - 2, size - 2);
+  ctx.shadowBlur = 0; // el bevel es núcleo, no halo
   ctx.fillStyle = p.bevel;
   ctx.fillRect(x * size + 1, y * size + 1, size - 2, 4);
-  ctx.globalAlpha = 1;
+  ctx.restore();
 }

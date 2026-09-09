@@ -178,8 +178,28 @@ export class SnakeGame implements ArcadeEngine {
   private drawSnake() {
     const ctx = this.ctx;
     this.snake.forEach((seg, i) => {
-      ctx.fillStyle = i === 0 ? this.p.head : this.p.body;
-      ctx.fillRect(seg.x * CELL + 1, seg.y * CELL + 1, CELL - 2, CELL - 2);
+      const color = i === 0 ? this.p.head : this.p.body;
+      const x = seg.x * CELL + 1;
+      const y = seg.y * CELL + 1;
+
+      if (!this.p.glow) {
+        ctx.fillStyle = color;
+        ctx.fillRect(x, y, CELL - 2, CELL - 2);
+        return;
+      }
+
+      ctx.save();
+      ctx.shadowColor = color;
+      ctx.shadowBlur = this.p.glow;
+      ctx.fillStyle = color;
+      ctx.fillRect(x, y, CELL - 2, CELL - 2);
+      ctx.fillRect(x, y, CELL - 2, CELL - 2); // 2ª pasada: acumula el halo
+      if (this.p.core) {
+        ctx.shadowBlur = this.p.glow / 3;
+        ctx.fillStyle = this.p.core;
+        ctx.fillRect(x + 8, y + 8, CELL - 18, CELL - 18);
+      }
+      ctx.restore();
     });
   }
 
@@ -188,7 +208,15 @@ export class SnakeGame implements ArcadeEngine {
     ctx.fillStyle = this.p.bg;
     ctx.fillRect(0, 0, this.W, this.H);
     this.drawGrid();
-    drawFruit(ctx, this.fruit.spriteKey, this.fruit.cell.x * CELL, this.fruit.cell.y * CELL, CELL);
+    drawFruit(
+      ctx,
+      this.fruit.spriteKey,
+      this.fruit.cell.x * CELL,
+      this.fruit.cell.y * CELL,
+      CELL,
+      this.p.glow,
+      this.p.core ?? this.p.body,
+    );
     this.drawSnake();
   }
 
