@@ -1,4 +1,5 @@
-import type { ArcadeEngine, EngineCallbacks } from "@/lib/games/types";
+import type { ArcadeEngine, EngineCallbacks, EngineOptions, SkinName } from "@/lib/games/types";
+import { DEFAULT_SKIN } from "@/lib/games/types";
 import {
   Ball,
   Block,
@@ -18,6 +19,7 @@ import {
   loadSpritesheet,
 } from "@/lib/games/arkanoid/sprites";
 import { LEVELS } from "@/lib/games/arkanoid/levels";
+import { ArkanoidPalette, SKINS } from "@/lib/games/arkanoid/skins";
 
 type GameState = "playing" | "gameover";
 
@@ -28,6 +30,9 @@ export class ArkanoidGame implements ArcadeEngine {
   private readonly W = 800;
   private readonly H = 600;
   private readonly callbacks: EngineCallbacks;
+
+  private skin: SkinName;
+  private p: ArkanoidPalette;
 
   private paddle!: Paddle;
   private ball!: Ball;
@@ -51,11 +56,13 @@ export class ArkanoidGame implements ArcadeEngine {
   private readonly breakSound: HTMLAudioElement;
   private readonly activeSounds = new Set<HTMLAudioElement>();
 
-  constructor(canvas: HTMLCanvasElement, callbacks: EngineCallbacks) {
+  constructor(canvas: HTMLCanvasElement, callbacks: EngineCallbacks, options?: EngineOptions) {
     const ctx = canvas.getContext("2d");
     if (!ctx) throw new Error("2D context no disponible");
     this.ctx = ctx;
     this.callbacks = callbacks;
+    this.skin = options?.skin ?? DEFAULT_SKIN;
+    this.p = SKINS[this.skin];
     this.bounceSound = new Audio("/juegos/arkanoid/ball-bounce.mp3");
     this.breakSound = new Audio("/juegos/arkanoid/break-sound.mp3");
     this.initGame();
@@ -64,8 +71,14 @@ export class ArkanoidGame implements ArcadeEngine {
     window.addEventListener("keyup", this.handleKeyUp);
     document.addEventListener("visibilitychange", this.handleVisibilityChange);
 
-    loadSpritesheet(() => {});
+    loadSpritesheet(this.skin, () => {});
     this.rafId = requestAnimationFrame(this.loop);
+  }
+
+  setSkin(skin: SkinName) {
+    this.skin = skin;
+    this.p = SKINS[skin];
+    loadSpritesheet(skin, () => {});
   }
 
   pause() {
@@ -258,7 +271,7 @@ export class ArkanoidGame implements ArcadeEngine {
   // ── Draw ──────────────────────────────────────────────────────────────
   private drawHUD() {
     const ctx = this.ctx;
-    ctx.fillStyle = "#fff";
+    ctx.fillStyle = this.p.hud;
     ctx.font = "bold 18px monospace";
     ctx.textAlign = "left";
     ctx.textBaseline = "top";
@@ -270,26 +283,43 @@ export class ArkanoidGame implements ArcadeEngine {
     const ballSpacing = 4;
     for (let i = 0; i < this.lives; i++) {
       const bx = this.W - 10 - (this.lives - i) * (ballSize + ballSpacing);
-      drawSprite(ctx, "ball", bx, 10, ballSize, ballSize);
+      drawSprite(ctx, this.skin, "ball", bx, 10, ballSize, ballSize);
     }
   }
 
   private draw() {
     const ctx = this.ctx;
-    ctx.fillStyle = "#000";
+    ctx.fillStyle = this.p.bg;
     ctx.fillRect(0, 0, this.W, this.H);
 
     for (const block of this.blocks) {
-      if (block.alive) drawSprite(ctx, `block_${block.color}`, block.x, block.y, block.w, block.h);
+      if (block.alive)
+        drawSprite(ctx, this.skin, `block_${block.color}`, block.x, block.y, block.w, block.h);
     }
 
     for (const exp of this.explosions) {
       const frameIndex = Math.min(Math.floor((exp.elapsed / EXPLOSION_DURATION) * 4), 3);
-      drawFrame(ctx, EXPLOSION_FRAMES[exp.color][frameIndex], exp.x, exp.y, exp.w, exp.h);
+      drawFrame(
+        ctx,
+        this.skin,
+        EXPLOSION_FRAMES[exp.color][frameIndex],
+        exp.x,
+        exp.y,
+        exp.w,
+        exp.h,
+      );
     }
 
-    drawSprite(ctx, "paddle", this.paddle.x, this.paddle.y, this.paddle.w, this.paddle.h);
-    drawSprite(ctx, "ball", this.ball.x, this.ball.y, this.ball.w, this.ball.h);
+    drawSprite(
+      ctx,
+      this.skin,
+      "paddle",
+      this.paddle.x,
+      this.paddle.y,
+      this.paddle.w,
+      this.paddle.h,
+    );
+    drawSprite(ctx, this.skin, "ball", this.ball.x, this.ball.y, this.ball.w, this.ball.h);
 
     this.drawHUD();
   }

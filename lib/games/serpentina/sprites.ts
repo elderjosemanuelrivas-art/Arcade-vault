@@ -64,9 +64,19 @@ export function drawFruit(
   x: number,
   y: number,
   size: number,
+  glow = 0,
+  glowColor = "",
 ): void {
   if (!ssLoaded || !ssImg) return;
   const rect = FRUIT_ATLAS[key];
   if (!rect) return;
+  if (!glow) {
+    ctx.drawImage(ssImg, rect.x, rect.y, rect.w, rect.h, x, y, size, size);
+    return;
+  }
+  ctx.save();
+  ctx.shadowColor = glowColor;
+  ctx.shadowBlur = glow;
   ctx.drawImage(ssImg, rect.x, rect.y, rect.w, rect.h, x, y, size, size);
+  ctx.restore();
 }
