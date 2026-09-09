@@ -1,3 +1,6 @@
+import type { SkinName } from "@/lib/games/types";
+import { SKINS } from "@/lib/games/arkanoid/skins";
+
 export type BlockColor = "gray" | "red" | "yellow" | "cyan" | "magenta" | "hotpink" | "green";
 
 type SpriteRect = { sx: number; sy: number; sw: number; sh: number };
@@ -70,27 +73,41 @@ export const SPRITES: {
 // Caché a nivel de módulo a propósito: es un asset de solo lectura compartido entre
 // instancias/restarts, no estado de partida — recargar el módulo dos veces (Strict Mode)
 // es idempotente porque loadSpritesheet ya resuelve de inmediato si ssLoaded es true.
-let ssImg: HTMLCanvasElement | null = null;
+// Keyeada por skin: se decodifica el atlas crudo una sola vez (rawImg, compartido) y se
+// hornea un canvas por skin bajo demanda (filtro CSS aplicado una única vez al hornear,
+// nunca por frame) — bakedAtlases guarda esos canvases horneados por SkinName.
+let rawImg: HTMLImageElement | null = null;
 let ssLoaded = false;
+const bakedAtlases = new Map<SkinName, HTMLCanvasElement>();
 const ssCallbacks: (() => void)[] = [];
 
-export function loadSpritesheet(cb: () => void): void {
+function bakeAtlas(skin: SkinName): HTMLCanvasElement | null {
+  const cached = bakedAtlases.get(skin);
+  if (cached) return cached;
+  if (!rawImg) return null;
+  const oc = document.createElement("canvas");
+  oc.width = rawImg.width;
+  oc.height = rawImg.height;
+  const octx = oc.getContext("2d")!;
+  octx.filter = SKINS[skin].atlasFilter;
+  octx.drawImage(rawImg, 0, 0);
+  bakedAtlases.set(skin, oc);
+  return oc;
+}
+
+export function loadSpritesheet(skin: SkinName, cb: () => void): void {
   if (ssLoaded) {
+    bakeAtlas(skin);
     cb();
     return;
   }
   ssCallbacks.push(cb);
-  if (ssImg) return;
+  if (rawImg) return;
 
-  const rawImg = new Image();
+  rawImg = new Image();
   rawImg.onload = () => {
-    const oc = document.createElement("canvas");
-    oc.width = rawImg.width;
-    oc.height = rawImg.height;
-    const octx = oc.getContext("2d")!;
-    octx.drawImage(rawImg, 0, 0);
-    ssImg = oc;
     ssLoaded = true;
+    bakeAtlas(skin);
     ssCallbacks.forEach((f) => f());
   };
   rawImg.onerror = () => console.error("Failed to load spritesheet");
@@ -99,28 +116,32 @@ export function loadSpritesheet(cb: () => void): void {
 
 export function drawFrame(
   ctx: CanvasRenderingContext2D,
+  skin: SkinName,
   frame: SpriteRect,
   x: number,
   y: number,
   w: number,
   h: number,
 ): void {
-  if (!ssLoaded || !ssImg) return;
-  ctx.drawImage(ssImg, frame.sx, frame.sy, frame.sw, frame.sh, x, y, w, h);
+  const atlas = ssLoaded ? bakeAtlas(skin) : null;
+  if (!atlas) return;
+  ctx.drawImage(atlas, frame.sx, frame.sy, frame.sw, frame.sh, x, y, w, h);
 }
 
 export function drawSprite(
   ctx: CanvasRenderingContext2D,
+  skin: SkinName,
   name: "paddle" | "ball" | `block_${BlockColor}`,
   x: number,
   y: number,
   w: number,
   h: number,
 ): void {
-  if (!ssLoaded || !ssImg) return;
+  const atlas = ssLoaded ? bakeAtlas(skin) : null;
+  if (!atlas) return;
   const sp = name.startsWith("block_")
     ? SPRITES.blocks[name.slice(6) as BlockColor]
     : SPRITES[name as "paddle" | "ball"];
   if (!sp) return;
-  ctx.drawImage(ssImg, sp.sx, sp.sy, sp.sw, sp.sh, x, y, w, h);
+  ctx.drawImage(atlas, sp.sx, sp.sy, sp.sw, sp.sh, x, y, w, h);
 }
