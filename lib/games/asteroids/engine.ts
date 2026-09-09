@@ -1,4 +1,5 @@
-import type { ArcadeEngine, EngineCallbacks } from "@/lib/games/types";
+import type { ArcadeEngine, EngineCallbacks, EngineOptions, SkinName } from "@/lib/games/types";
+import { DEFAULT_SKIN } from "@/lib/games/types";
 import {
   Asteroid,
   Bullet,
@@ -11,6 +12,8 @@ import {
   rand,
   Ship,
 } from "@/lib/games/asteroids/entities";
+import type { AsteroidsPalette } from "@/lib/games/asteroids/skins";
+import { SKINS } from "@/lib/games/asteroids/skins";
 
 type GameState = "playing" | "dead" | "gameover" | "paused";
 
@@ -21,6 +24,7 @@ export class AsteroidsGame implements ArcadeEngine {
   private readonly W = 800;
   private readonly H = 600;
   private readonly callbacks: EngineCallbacks;
+  private p: AsteroidsPalette;
 
   private ship!: Ship;
   private bullets: Bullet[] = [];
@@ -43,11 +47,12 @@ export class AsteroidsGame implements ArcadeEngine {
   private lastTime: number | null = null;
   private destroyed = false;
 
-  constructor(canvas: HTMLCanvasElement, callbacks: EngineCallbacks) {
+  constructor(canvas: HTMLCanvasElement, callbacks: EngineCallbacks, options?: EngineOptions) {
     const ctx = canvas.getContext("2d");
     if (!ctx) throw new Error("2D context no disponible");
     this.ctx = ctx;
     this.callbacks = callbacks;
+    this.p = SKINS[options?.skin ?? DEFAULT_SKIN];
     this.initGame();
 
     window.addEventListener("keydown", this.handleKeyDown);
@@ -74,6 +79,10 @@ export class AsteroidsGame implements ArcadeEngine {
   restart() {
     this.initGame();
     this.stateBeforePause = null;
+  }
+
+  setSkin(skin: SkinName) {
+    this.p = SKINS[skin];
   }
 
   destroy() {
@@ -287,8 +296,8 @@ export class AsteroidsGame implements ArcadeEngine {
     ctx.save();
     ctx.translate(x, y);
     ctx.rotate(-Math.PI / 2);
-    ctx.strokeStyle = "#fff";
-    ctx.lineWidth = 1.2;
+    ctx.strokeStyle = this.p.stroke;
+    ctx.lineWidth = this.p.lineWidth.lifeIcon;
     ctx.lineJoin = "round";
     ctx.beginPath();
     ctx.moveTo(9, 0);
@@ -302,7 +311,7 @@ export class AsteroidsGame implements ArcadeEngine {
 
   private drawHUD() {
     const ctx = this.ctx;
-    ctx.fillStyle = "#fff";
+    ctx.fillStyle = this.p.hud;
     ctx.font = "15px monospace";
 
     ctx.textAlign = "left";
@@ -315,7 +324,7 @@ export class AsteroidsGame implements ArcadeEngine {
 
     if (this.ship.tripleShot > 0) {
       ctx.textAlign = "left";
-      ctx.fillStyle = "#0ff";
+      ctx.fillStyle = this.p.accent;
       ctx.fillText(`3x  ${this.ship.tripleShot.toFixed(1)}s`, 14, 46);
     }
   }
@@ -323,24 +332,24 @@ export class AsteroidsGame implements ArcadeEngine {
   private drawOverlay(title: string, sub: string) {
     const ctx = this.ctx;
     ctx.textAlign = "center";
-    ctx.fillStyle = "#fff";
+    ctx.fillStyle = this.p.overlayTitle;
     ctx.font = "bold 46px monospace";
     ctx.fillText(title, this.W / 2, this.H / 2 - 18);
     ctx.font = "18px monospace";
-    ctx.fillStyle = "rgba(255,255,255,0.65)";
+    ctx.fillStyle = this.p.overlaySub;
     ctx.fillText(sub, this.W / 2, this.H / 2 + 22);
   }
 
   private draw() {
     const ctx = this.ctx;
-    ctx.fillStyle = "#000";
+    ctx.fillStyle = this.p.bg;
     ctx.fillRect(0, 0, this.W, this.H);
 
-    this.particles.forEach((p) => p.draw(ctx));
-    this.asteroids.forEach((a) => a.draw(ctx));
-    this.powerUps.forEach((p) => p.draw(ctx));
-    this.bullets.forEach((b) => b.draw(ctx));
-    this.ship.draw(ctx);
+    this.particles.forEach((particle) => particle.draw(ctx, this.p));
+    this.asteroids.forEach((a) => a.draw(ctx, this.p));
+    this.powerUps.forEach((powerUp) => powerUp.draw(ctx, this.p));
+    this.bullets.forEach((b) => b.draw(ctx, this.p));
+    this.ship.draw(ctx, this.p);
 
     this.drawHUD();
 
