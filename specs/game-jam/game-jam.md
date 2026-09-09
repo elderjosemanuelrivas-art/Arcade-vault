@@ -32,7 +32,7 @@ de partida para no proponerlos de nuevo ni ignorarlos al razonar sobre variedad 
 
 ### 001 — TEMA «naves y escuadrones alienígenas en formación, estilo Galaga» → GALAGA → `invasores` (2026-09-09)
 
-- **Estado:** en spec (enfoque A elegido por el humano, promovido a `specs/10-galaga-real-en-invasores.md`)
+- **Estado:** en spec
 - **Tema recibido:** literal, "naves y escuadrones alienígenas en formación, estilo Galaga" — con el
   juego ya elegido por decisión explícita del humano (GALAGA), no por deliberación libre de la Fase 2. La Fase 2 se completó igual, íntegra, para dejar constancia escrita de que Galaga gana la
   rúbrica también bajo este tema.
@@ -81,4 +81,4 @@ cañón en horizontal y abre fuego con precisión, antes de que toquen la superf
   rápido de validar (enfoque B, sacrifica el mecanismo más icónico); ambos enfoques dejan a Space
   Invaders (memoria `game-planner` #002) sin slot libre sin migración nueva, algo que el humano debe
   tener presente si en el futuro quiere portarlo también.
-- **Resultado:** enfoque A elegido (SPEC 10) — pendiente de implementación vía `/spec-impl`.
+- **Resultado:** —
