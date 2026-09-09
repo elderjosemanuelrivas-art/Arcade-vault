@@ -1,4 +1,4 @@
-import type { ArcadeEngine, EngineCallbacks, EngineOptions } from "@/lib/games/types";
+import type { ArcadeEngine, EngineCallbacks, EngineOptions, SkinName } from "@/lib/games/types";
 import { DEFAULT_SKIN } from "@/lib/games/types";
 import {
   advance,
@@ -39,7 +39,7 @@ export class SnakeGame implements ArcadeEngine {
   private readonly W = 800;
   private readonly H = 600;
   private readonly callbacks: EngineCallbacks;
-  private readonly p: SerpentinaPalette;
+  private p: SerpentinaPalette;
 
   private snake!: Point[];
   private dir: Direction = "right";
@@ -92,6 +92,10 @@ export class SnakeGame implements ArcadeEngine {
   restart() {
     this.initGame();
     this.stateBeforePause = null;
+  }
+
+  setSkin(skin: SkinName) {
+    this.p = SKINS[skin];
   }
 
   destroy() {

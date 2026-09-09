@@ -6,15 +6,19 @@ export type EngineCallbacks = {
   onPause: (paused: boolean) => void;
 };
 
+export const SKIN_NAMES = ["neon", "retro", "clasico"] as const;
+export type SkinName = (typeof SKIN_NAMES)[number];
+
 export type ArcadeEngine = {
   pause: () => void;
   resume: () => void;
   restart: () => void;
   destroy: () => void;
+  // Opcional: solo los motores que ya tienen skins.ts lo implementan. Cambia
+  // la paleta activa sin reiniciar la partida (sin destroy()/recreate()).
+  setSkin?: (skin: SkinName) => void;
 };
 
-export const SKIN_NAMES = ["neon", "retro", "clasico"] as const;
-export type SkinName = (typeof SKIN_NAMES)[number];
 export const DEFAULT_SKIN: SkinName = "clasico";
 export type SkinSet<P> = Record<SkinName, P>;
 export type EngineOptions = { skin?: SkinName };

@@ -1,18 +1,8 @@
+import type { TetrisPalette } from "@/lib/games/tetris/skins";
+
 export const COLS = 10;
 export const ROWS = 20;
 export const BLOCK = 30;
-
-export const COLORS = [
-  null,
-  "#4dd0e1", // I - cyan
-  "#ffd54f", // O - yellow
-  "#ba68c8", // T - purple
-  "#81c784", // S - green
-  "#e57373", // Z - red
-  "#90caf9", // J - pale blue
-  "#ffb74d", // L - orange
-  "#9e9e9e", // N - tuerca (gris metálico)
-] as const;
 
 export const PIECES: (number[][] | null)[] = [
   null,
@@ -103,6 +93,7 @@ export function rotateCW(shape: number[][]): number[][] {
 
 export function drawBlock(
   ctx: CanvasRenderingContext2D,
+  p: TetrisPalette,
   x: number,
   y: number,
   colorIndex: number,
@@ -110,11 +101,11 @@ export function drawBlock(
   alpha?: number,
 ) {
   if (!colorIndex) return;
-  const color = COLORS[colorIndex];
+  const color = p.pieces[colorIndex];
   ctx.globalAlpha = alpha ?? 1;
   ctx.fillStyle = color!;
   ctx.fillRect(x * size + 1, y * size + 1, size - 2, size - 2);
-  ctx.fillStyle = "rgba(255,255,255,0.12)";
+  ctx.fillStyle = p.bevel;
   ctx.fillRect(x * size + 1, y * size + 1, size - 2, 4);
   ctx.globalAlpha = 1;
 }

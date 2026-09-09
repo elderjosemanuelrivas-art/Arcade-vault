@@ -95,12 +95,29 @@ tú aquí.
 
 ## Fase 4 — Cablear el motor elegido
 
-Patrón común a los cuatro: el motor guarda un campo `private readonly p: Palette`, el constructor
-recibe un tercer parámetro **opcional con default** (`skin: SkinName = DEFAULT_SKIN`), y su
-`index.ts` reenvía `options?.skin`. Donde el dibujo ocurre fuera de la clase del motor (funciones
-de entidad, por ejemplo), **la paleta se pasa como parámetro explícito** de esa función — nunca
-como estado implícito preseteado en `ctx` — así el compilador te obliga a tocar cada sitio de
-llamada, y no se te puede escapar ninguno.
+Patrón común a los cuatro: el motor guarda un campo `private p: Palette` (mutable, sin
+`readonly` — `setSkin` lo reasigna), el constructor recibe un tercer parámetro **opcional**
+(`options?: EngineOptions`, resuelto como `SKINS[options?.skin ?? DEFAULT_SKIN]`), su `index.ts`
+reenvía `options`, y la clase implementa el método **opcional** del contrato:
+
+```ts
+setSkin(skin: SkinName) {
+  this.p = SKINS[skin];
+}
+```
+
+Esto es obligatorio para todo motor que portes — es lo que permite cambiar de skin **en caliente**,
+sin destruir ni recrear el motor, y sin perder la partida en curso: como el campo ya se lee en cada
+frame de dibujo, reasignarlo hace que el siguiente `requestAnimationFrame` pinte con los colores
+nuevos. Es distinto de hacer el método obligatorio en el _tipo_ `ArcadeEngine` (eso sigue prohibido,
+ver Reglas duras) — aquí lo obligatorio es que **tu implementación concreta** lo tenga, ya que
+`game-player.tsx` detecta la capacidad en runtime con `typeof engine.setSkin === "function"` para
+decidir si mostrar el selector, sin que exista ningún registro central de qué juegos tienen skins.
+
+Donde el dibujo ocurre fuera de la clase del motor (funciones de entidad, por ejemplo), **la
+paleta se pasa como parámetro explícito** de esa función — nunca como estado implícito preseteado
+en `ctx` — así el compilador te obliga a tocar cada sitio de llamada, y no se te puede escapar
+ninguno.
 
 Receta y trampas específicas de cada motor — síguela al pie de la letra para el que elegiste en la
 Fase 1, y no toques los otros tres:
@@ -264,10 +281,12 @@ actual); y, si algo quedó bloqueado o sin verificar, qué es y por qué.
   `app/juegos/[id]/page.tsx`, `supabase/migrations/` ni `lib/games/registry.ts`. Las skins son
   internas al motor en esta iteración; si algo pareciera exigir tocar uno de estos archivos, es
   una señal de que te saliste del alcance — para y repórtalo como riesgo, no lo hagas.
-- **Nunca hagas obligatorio** el tercer parámetro de `EngineFactory`, ni añadas un método
-  `setSkin()` (ni ningún otro) a `ArcadeEngine`. Los cuatro motores hacen
-  `implements ArcadeEngine`, así que ampliar esa interfaz rompe el build de los cuatro a la vez —
-  exactamente lo que la regla de "un juego por invocación" existe para impedir.
+- **Nunca hagas obligatorio** el tercer parámetro de `EngineFactory`, ni el método `setSkin` en el
+  **tipo** `ArcadeEngine` (ya es opcional ahí — `setSkin?:`, y así debe seguir). Los cuatro motores
+  hacen `implements ArcadeEngine`, así que hacerlo obligatorio en el tipo rompería el build de los
+  cuatro a la vez. Lo que sí es obligatorio es que **el motor que portes** implemente ese método
+  opcional (ver Fase 4) — sin eso, `game-player.tsx` nunca detecta la capacidad y el selector no
+  aparece para ese juego.
 - **No cambies ni un valor de `clasico`** respecto al render de hoy: sin normalizar formato, sin
   redondear, sin "mejorar" nada. Una skin que cambia lo que se ve bajo el nombre `clasico` no es
   clásica.
@@ -277,9 +296,13 @@ actual); y, si algo quedó bloqueado o sin verificar, qué es y por qué.
   de cualquier otro tipo).
 - **No leas el tema desde CSS** (`getComputedStyle`, variables custom) dentro de un motor — los
   motores de canvas son autocontenidos y `app/globals.css` es de un solo tema.
-- **No construyas ningún selector de skin**, ni la persistas en `localStorage`, cookies, query
-  string ni Supabase. El único consumidor de `options.skin` en esta iteración es el propio motor
-  con su default; elegir la skin activa es una feature futura fuera de tu alcance.
+- **No toques el selector de skin en `app/components/game-player.tsx`.** Ya existe (mapea
+  `SKIN_NAMES`, detecta la capacidad de cada motor en runtime con
+  `typeof engine.setSkin === "function"`, y llama `engine.setSkin(next)` sin destruir ni recrear
+  el motor) — tu único trabajo es que el motor que portes implemente `setSkin` para que el
+  selector lo detecte solo, no tocar ese componente.
+- **No persistas la skin activa** en `localStorage`, cookies, query string ni Supabase — sigue sin
+  persistencia por decisión explícita: cada entrada al reproductor arranca en `clasico`.
 - **No introduzcas estado mutable a nivel de módulo** para la skin activa (nada de
   `let ACTIVE_SKIN`). Sobrevive a Fast Refresh y se filtra entre instancias del motor.
 - **No redeclares `SkinName`** dentro del `skins.ts` de un motor — impórtalo siempre de
