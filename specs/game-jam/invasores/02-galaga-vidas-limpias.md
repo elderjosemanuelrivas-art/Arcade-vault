@@ -1,6 +1,7 @@
 # SPEC — Galaga, enfoque B («vidas limpias») real en «invasores»
 
-> **Status:** borrador
+> **Status:** descartado
+> **Resolución:** ganó el enfoque hermano excluyente (`01-galaga-captura-y-nave-doble.md`), promovido a `specs/11-galaga-captura-y-nave-doble.md`. Este enfoque no se implementa.
 > **Depends on:** SPEC 05, SPEC 06, SPEC 08 (patrón `levels.ts` de progresión por oleadas y de un motor con múltiples tipos de entidad enemiga)
 > **Date:** 2026-09-09
 > **Alternativa excluyente:** `specs/game-jam/invasores/01-galaga-captura-y-nave-doble.md`
