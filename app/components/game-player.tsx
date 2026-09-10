@@ -4,12 +4,19 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { Game } from "@/lib/games-data";
-import type { ArcadeEngine } from "@/lib/games/types";
+import type { ArcadeEngine, SkinName } from "@/lib/games/types";
+import { DEFAULT_SKIN, SKIN_NAMES } from "@/lib/games/types";
 import { GAME_ENGINES } from "@/lib/games/registry";
 import { createClient } from "@/lib/supabase/client";
 import { useSession } from "./session-provider";
 
 type SaveState = "idle" | "saving" | "saved" | "error";
+
+const SKIN_LABELS: Record<SkinName, string> = {
+  neon: "NEON",
+  retro: "RETRO",
+  clasico: "CLÁSICO",
+};
 
 export function GamePlayer({ game }: { game: Game }) {
   const router = useRouter();
@@ -23,6 +30,8 @@ export function GamePlayer({ game }: { game: Game }) {
   const [paused, setPaused] = useState(false);
   const [over, setOver] = useState(false);
   const [saveState, setSaveState] = useState<SaveState>("idle");
+  const [skin, setSkin] = useState<SkinName>(DEFAULT_SKIN);
+  const [skinnable, setSkinnable] = useState(false);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const engineRef = useRef<ArcadeEngine | null>(null);
@@ -44,7 +53,7 @@ export function GamePlayer({ game }: { game: Game }) {
 
     GAME_ENGINES[game.id]().then(({ default: createEngine }) => {
       if (cancelled) return;
-      engineRef.current = createEngine(canvas, {
+      const engine = createEngine(canvas, {
         onScore: setScore,
         onLives: setLives,
         onLevel: setEngineLevel,
@@ -54,12 +63,15 @@ export function GamePlayer({ game }: { game: Game }) {
         },
         onPause: setPaused,
       });
+      engineRef.current = engine;
+      setSkinnable(typeof engine.setSkin === "function");
     });
 
     return () => {
       cancelled = true;
       engineRef.current?.destroy();
       engineRef.current = null;
+      setSkinnable(false);
     };
   }, [game.id, hasEngine]);
 
@@ -76,6 +88,11 @@ export function GamePlayer({ game }: { game: Game }) {
     if (!hasEngine || !over || !user) return;
     Promise.resolve().then(() => attemptSave());
   }, [hasEngine, over, user, attemptSave]);
+
+  const changeSkin = (next: SkinName) => {
+    setSkin(next);
+    engineRef.current?.setSkin?.(next);
+  };
 
   const togglePause = () => {
     if (engineRef.current) {
@@ -124,6 +141,22 @@ export function GamePlayer({ game }: { game: Game }) {
             <div className="l">Nivel</div>
             <div className="v">{String(level).padStart(2, "0")}</div>
           </div>
+          {skinnable && (
+            <div className="hud-stat">
+              <div className="l">Skin</div>
+              <div className="av-chips">
+                {SKIN_NAMES.map((s) => (
+                  <button
+                    key={s}
+                    className={"chip" + (skin === s ? " active" : "")}
+                    onClick={() => changeSkin(s)}
+                  >
+                    {SKIN_LABELS[s]}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
         <div className="hud-actions">
           <button className="btn yellow" onClick={togglePause}>

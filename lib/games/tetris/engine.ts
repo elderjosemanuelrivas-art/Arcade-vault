@@ -1,4 +1,5 @@
-import type { ArcadeEngine, EngineCallbacks } from "@/lib/games/types";
+import type { ArcadeEngine, EngineCallbacks, EngineOptions, SkinName } from "@/lib/games/types";
+import { DEFAULT_SKIN } from "@/lib/games/types";
 import {
   BLOCK,
   Board,
@@ -12,6 +13,7 @@ import {
   ROWS,
   rotateCW,
 } from "@/lib/games/tetris/entities";
+import { SKINS, type TetrisPalette } from "@/lib/games/tetris/skins";
 
 type GameState = "playing" | "paused" | "gameover";
 
@@ -27,6 +29,7 @@ export class TetrisGame implements ArcadeEngine {
   private readonly W = 800;
   private readonly H = 600;
   private readonly callbacks: EngineCallbacks;
+  private p: TetrisPalette;
 
   private board!: Board;
   private current!: Piece;
@@ -45,11 +48,12 @@ export class TetrisGame implements ArcadeEngine {
 
   private lastEmitted = { score: 0, level: 1 };
 
-  constructor(canvas: HTMLCanvasElement, callbacks: EngineCallbacks) {
+  constructor(canvas: HTMLCanvasElement, callbacks: EngineCallbacks, options?: EngineOptions) {
     const ctx = canvas.getContext("2d");
     if (!ctx) throw new Error("2D context no disponible");
     this.ctx = ctx;
     this.callbacks = callbacks;
+    this.p = SKINS[options?.skin ?? DEFAULT_SKIN];
     this.initGame();
 
     window.addEventListener("keydown", this.handleKeyDown);
@@ -76,6 +80,10 @@ export class TetrisGame implements ArcadeEngine {
   restart() {
     this.initGame();
     this.stateBeforePause = null;
+  }
+
+  setSkin(skin: SkinName) {
+    this.p = SKINS[skin];
   }
 
   destroy() {
@@ -253,7 +261,7 @@ export class TetrisGame implements ArcadeEngine {
   // ── Draw ──────────────────────────────────────────────────────────────
   private drawGrid() {
     const ctx = this.ctx;
-    ctx.strokeStyle = "rgba(255,255,255,0.08)";
+    ctx.strokeStyle = this.p.grid;
     ctx.lineWidth = 0.5;
     for (let c = 1; c < COLS; c++) {
       ctx.beginPath();
@@ -276,30 +284,43 @@ export class TetrisGame implements ArcadeEngine {
     this.drawGrid();
 
     for (let r = 0; r < ROWS; r++)
-      for (let c = 0; c < COLS; c++) drawBlock(ctx, c, r, this.board[r][c], BLOCK);
+      for (let c = 0; c < COLS; c++) drawBlock(ctx, this.p, c, r, this.board[r][c], BLOCK);
 
     const gy = this.ghostY();
     for (let r = 0; r < this.current.shape.length; r++)
       for (let c = 0; c < this.current.shape[r].length; c++)
         if (this.current.shape[r][c])
-          drawBlock(ctx, this.current.x + c, gy + r, this.current.shape[r][c], BLOCK, 0.2);
+          drawBlock(ctx, this.p, this.current.x + c, gy + r, this.current.shape[r][c], BLOCK, 0.2);
 
     for (let r = 0; r < this.current.shape.length; r++)
       for (let c = 0; c < this.current.shape[r].length; c++)
-        drawBlock(ctx, this.current.x + c, this.current.y + r, this.current.shape[r][c], BLOCK);
+        drawBlock(
+          ctx,
+          this.p,
+          this.current.x + c,
+          this.current.y + r,
+          this.current.shape[r][c],
+          BLOCK,
+        );
 
     ctx.restore();
   }
 
   private drawPanel() {
     const ctx = this.ctx;
-    ctx.fillStyle = "#fff";
+    if (this.p.glow) ctx.save();
+    if (this.p.glow) {
+      ctx.shadowColor = this.p.panel;
+      ctx.shadowBlur = this.p.glow;
+    }
+    ctx.fillStyle = this.p.panel;
     ctx.font = "15px monospace";
     ctx.textAlign = "left";
     ctx.fillText(`SCORE  ${this.score}`, PANEL_X, 30);
     ctx.fillText(`LINES  ${this.lines}`, PANEL_X, 54);
     ctx.fillText(`LEVEL  ${this.level}`, PANEL_X, 78);
     ctx.fillText("NEXT", PANEL_X, 116);
+    if (this.p.glow) ctx.restore();
 
     const shape = this.next.shape;
     const offX = Math.floor((4 - shape[0].length) / 2);
@@ -308,13 +329,13 @@ export class TetrisGame implements ArcadeEngine {
     ctx.translate(PANEL_X, 130);
     for (let r = 0; r < shape.length; r++)
       for (let c = 0; c < shape[r].length; c++)
-        drawBlock(ctx, offX + c, offY + r, shape[r][c], NEXT_BLOCK);
+        drawBlock(ctx, this.p, offX + c, offY + r, shape[r][c], NEXT_BLOCK);
     ctx.restore();
   }
 
   private draw() {
     const ctx = this.ctx;
-    ctx.fillStyle = "#000";
+    ctx.fillStyle = this.p.bg;
     ctx.fillRect(0, 0, this.W, this.H);
     this.drawBoard();
     this.drawPanel();
