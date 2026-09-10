@@ -1,0 +1,51 @@
+- generic [active] [ref=f2e1]:
+  - generic [ref=f2e2]:
+    - navigation [ref=f2e3]:
+      - link "ARCADE VAULT" [ref=f2e4] [cursor=pointer]:
+        - /url: /
+      - button "Menú" [ref=f2e7] [cursor=pointer]: ≡
+    - complementary [ref=f2e8]:
+      - generic [ref=f2e9]: MENÚ
+      - link "Inicio" [ref=f2e10] [cursor=pointer]:
+        - /url: /
+      - link "Biblioteca" [ref=f2e11] [cursor=pointer]:
+        - /url: /biblioteca
+      - link "Salón de la Fama" [ref=f2e12] [cursor=pointer]:
+        - /url: /salon
+      - link "Acerca de" [ref=f2e13] [cursor=pointer]:
+        - /url: /acerca
+      - link "Iniciar Sesión" [ref=f2e14] [cursor=pointer]:
+        - /url: /auth
+      - generic [ref=f2e16]: CRÉDITOS · 03
+    - main [ref=f2e17]:
+      - generic [ref=f2e18]:
+        - generic [ref=f2e19]:
+          - generic [ref=f2e20]:
+            - generic [ref=f2e21]:
+              - generic [ref=f2e22]: Jugador
+              - generic [ref=f2e23]: INVITADO
+            - generic [ref=f2e24]:
+              - generic [ref=f2e25]: Puntuación
+              - generic [ref=f2e26]: "0"
+            - generic [ref=f2e27]:
+              - generic [ref=f2e28]: Vidas
+              - generic [ref=f2e29]: ♥ ♥ ♥
+            - generic [ref=f2e30]:
+              - generic [ref=f2e31]: Nivel
+              - generic [ref=f2e32]: "01"
+          - generic [ref=f2e33]:
+            - button "PAUSA" [ref=f2e34] [cursor=pointer]
+            - button "FIN" [ref=f2e35] [cursor=pointer]
+            - button "SALIR" [ref=f2e36] [cursor=pointer]
+        - generic [ref=f2e40]:
+          - generic [ref=f2e41]: SEÑAL OK
+          - generic [ref=f2e42]: TETRIS · CRT-83 · 60 HZ
+          - generic [ref=f2e43]: CARGA · 1MB
+        - generic [ref=f2e44]:
+          - generic [ref=f2e45]:
+            - button "◀" [ref=f2e46] [cursor=pointer]
+            - button "▶" [ref=f2e47] [cursor=pointer]
+            - button "BAJAR" [ref=f2e48] [cursor=pointer]
+          - button "GIRAR" [ref=f2e50] [cursor=pointer]
+    - contentinfo [ref=f2e51]: © 2026 ARCADE VAULT · HECHO CON PIXELES Y NEÓN · v2.6.0
+  - button "Open Next.js Dev Tools" [ref=f2e57] [cursor=pointer]

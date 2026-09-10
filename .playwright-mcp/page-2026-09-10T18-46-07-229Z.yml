@@ -1,0 +1,52 @@
+- generic [active] [ref=f5e1]:
+  - generic [ref=f5e2]:
+    - navigation [ref=f5e3]:
+      - link "ARCADE VAULT" [ref=f5e4] [cursor=pointer]:
+        - /url: /
+      - button "Menú" [ref=f5e7] [cursor=pointer]: ≡
+    - complementary [ref=f5e8]:
+      - generic [ref=f5e9]: MENÚ
+      - link "Inicio" [ref=f5e10] [cursor=pointer]:
+        - /url: /
+      - link "Biblioteca" [ref=f5e11] [cursor=pointer]:
+        - /url: /biblioteca
+      - link "Salón de la Fama" [ref=f5e12] [cursor=pointer]:
+        - /url: /salon
+      - link "Acerca de" [ref=f5e13] [cursor=pointer]:
+        - /url: /acerca
+      - link "Iniciar Sesión" [ref=f5e14] [cursor=pointer]:
+        - /url: /auth
+      - generic [ref=f5e16]: CRÉDITOS · 03
+    - main [ref=f5e17]:
+      - generic [ref=f5e18]:
+        - generic [ref=f5e19]:
+          - generic [ref=f5e20]: ▲
+          - generic [ref=f5e22]:
+            - generic [ref=f5e23]:
+              - generic [ref=f5e24]: SHOOTER
+              - generic [ref=f5e25]: 1 JUGADOR
+              - generic [ref=f5e26]: TECLADO / TÁCTIL
+              - generic [ref=f5e27]: RETRO 1985
+            - heading "ROCAS" [level=2] [ref=f5e28]
+            - paragraph [ref=f5e29]: Tu nave triangular flota en vacío absoluto. Dispara y rota para dividir rocas en fragmentos cada vez más pequeños. Cuidado con los OVNIs en el horizonte.
+            - generic [ref=f5e30]:
+              - generic [ref=f5e31]:
+                - generic [ref=f5e32]: Partidas
+                - generic [ref=f5e33]: "0"
+              - generic [ref=f5e34]:
+                - generic [ref=f5e35]: Mejor global
+                - generic [ref=f5e36]: "0"
+              - generic [ref=f5e37]:
+                - generic [ref=f5e38]: Dificultad
+                - generic [ref=f5e39]: ★ ★ ★ ☆ ☆
+            - generic [ref=f5e40]:
+              - link "▶ JUGAR AHORA" [ref=f5e41] [cursor=pointer]:
+                - /url: /juegos/rocas/jugar
+              - link "VOLVER AL VAULT" [ref=f5e42] [cursor=pointer]:
+                - /url: /biblioteca
+        - complementary [ref=f5e43]:
+          - generic [ref=f5e44]:
+            - heading "MEJORES PUNTUACIONES" [level=3] [ref=f5e45]
+            - generic [ref=f5e46]: AÚN NADIE HA JUGADO
+    - contentinfo [ref=f5e47]: © 2026 ARCADE VAULT · HECHO CON PIXELES Y NEÓN · v2.6.0
+  - button "Open Next.js Dev Tools" [ref=f5e53] [cursor=pointer]

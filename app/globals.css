@@ -686,6 +686,57 @@ a { color: inherit; text-decoration: none; }
   color: var(--ink-faint);
 }
 
+/* ===== touch controls (mobile) ===== */
+.touch-controls {
+  display: none;
+  margin-top: 16px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+.touch-dpad {
+  display: grid;
+  grid-template-columns: repeat(3, 56px);
+  grid-template-rows: repeat(3, 56px);
+  gap: 6px;
+}
+.touch-actions { display: flex; gap: 12px; }
+.touch-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--pixel);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: var(--cyan);
+  background: var(--bg-2);
+  border: 1px solid var(--cyan);
+  border-radius: 8px;
+  cursor: pointer;
+  user-select: none;
+  touch-action: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.touch-btn:active { background: rgba(0,245,255,0.18); box-shadow: 0 0 10px rgba(0,245,255,0.5); }
+.touch-actions .touch-btn {
+  width: auto;
+  height: 56px;
+  padding: 0 16px;
+  border-color: var(--magenta);
+  color: var(--magenta);
+}
+.touch-actions .touch-btn:active { background: rgba(255,0,110,0.18); box-shadow: 0 0 10px rgba(255,0,110,0.5); }
+.dpad-up { grid-column: 2; grid-row: 1; }
+.dpad-left { grid-column: 1; grid-row: 2; }
+.dpad-right { grid-column: 3; grid-row: 2; }
+.dpad-down { grid-column: 2; grid-row: 3; }
+
+@media (pointer: coarse) {
+  .touch-controls { display: flex; }
+  .player-kb-note { display: none; }
+}
+
 /* fake in-screen game */
 .game-arena {
   position: absolute; inset: 0;
