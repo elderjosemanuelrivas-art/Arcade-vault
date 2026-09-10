@@ -1,4 +1,5 @@
-import type { ArcadeEngine, EngineCallbacks } from "@/lib/games/types";
+import type { ArcadeEngine, EngineCallbacks, EngineOptions, SkinName } from "@/lib/games/types";
+import { DEFAULT_SKIN } from "@/lib/games/types";
 import {
   aabbHit,
   BEAM_ACTIVE_MS,
@@ -40,6 +41,7 @@ import {
   TractorBeam,
 } from "@/lib/games/invasores/entities";
 import { levelConfig } from "@/lib/games/invasores/levels";
+import { SKINS, type InvasoresPalette } from "@/lib/games/invasores/skins";
 
 type WaveState = "entering" | "forming" | "active" | "cleared";
 type GameState = "playing" | "paused" | "gameover";
@@ -51,6 +53,7 @@ export class GalagaGame implements ArcadeEngine {
   private readonly W = FIELD_W;
   private readonly H = FIELD_H;
   private readonly callbacks: EngineCallbacks;
+  private p: InvasoresPalette;
 
   private formation: Enemy[] = [];
   private playerBullets: Bullet[] = [];
@@ -75,11 +78,12 @@ export class GalagaGame implements ArcadeEngine {
 
   private lastEmitted = { score: 0, lives: LIVES_START, level: 1 };
 
-  constructor(canvas: HTMLCanvasElement, callbacks: EngineCallbacks) {
+  constructor(canvas: HTMLCanvasElement, callbacks: EngineCallbacks, options?: EngineOptions) {
     const ctx = canvas.getContext("2d");
     if (!ctx) throw new Error("2D context no disponible");
     this.ctx = ctx;
     this.callbacks = callbacks;
+    this.p = SKINS[options?.skin ?? DEFAULT_SKIN];
     this.initGame();
 
     window.addEventListener("keydown", this.handleKeyDown);
@@ -104,6 +108,10 @@ export class GalagaGame implements ArcadeEngine {
 
   restart() {
     this.initGame();
+  }
+
+  setSkin(skin: SkinName) {
+    this.p = SKINS[skin];
   }
 
   destroy() {
@@ -523,7 +531,7 @@ export class GalagaGame implements ArcadeEngine {
 
   private draw() {
     const ctx = this.ctx;
-    ctx.fillStyle = "#000";
+    ctx.fillStyle = this.p.bg;
     ctx.fillRect(0, 0, this.W, this.H);
 
     this.drawStars();
@@ -538,7 +546,7 @@ export class GalagaGame implements ArcadeEngine {
     const now = performance.now();
     for (const star of this.stars) {
       const alpha = 0.35 + 0.65 * (0.5 + 0.5 * Math.sin(now / 600 + star.phase));
-      ctx.fillStyle = `rgba(255, 255, 255, ${alpha.toFixed(2)})`;
+      ctx.fillStyle = this.p.star(alpha);
       ctx.fillRect(star.x, star.y, star.size, star.size);
     }
   }
@@ -555,7 +563,23 @@ export class GalagaGame implements ArcadeEngine {
   private drawBee(enemy: Enemy) {
     const ctx = this.ctx;
     const { w, h } = ENEMY_SIZE.bee;
-    ctx.fillStyle = "#3cff6e";
+
+    if (!this.p.glow) {
+      ctx.fillStyle = this.p.bee;
+      ctx.beginPath();
+      ctx.moveTo(enemy.x, enemy.y - h / 2);
+      ctx.lineTo(enemy.x + w / 2, enemy.y);
+      ctx.lineTo(enemy.x, enemy.y + h / 2);
+      ctx.lineTo(enemy.x - w / 2, enemy.y);
+      ctx.closePath();
+      ctx.fill();
+      return;
+    }
+
+    ctx.save();
+    ctx.shadowColor = this.p.bee;
+    ctx.shadowBlur = this.p.glow;
+    ctx.fillStyle = this.p.bee;
     ctx.beginPath();
     ctx.moveTo(enemy.x, enemy.y - h / 2);
     ctx.lineTo(enemy.x + w / 2, enemy.y);
@@ -563,12 +587,30 @@ export class GalagaGame implements ArcadeEngine {
     ctx.lineTo(enemy.x - w / 2, enemy.y);
     ctx.closePath();
     ctx.fill();
+    ctx.restore();
   }
 
   private drawButterfly(enemy: Enemy) {
     const ctx = this.ctx;
     const { w, h } = ENEMY_SIZE.butterfly;
-    ctx.fillStyle = "#ff5fc4";
+
+    if (!this.p.glow) {
+      ctx.fillStyle = this.p.butterfly;
+      ctx.beginPath();
+      ctx.moveTo(enemy.x - w / 2, enemy.y + h / 2);
+      ctx.lineTo(enemy.x - w / 2, enemy.y - h / 2);
+      ctx.lineTo(enemy.x, enemy.y + h / 6);
+      ctx.lineTo(enemy.x + w / 2, enemy.y - h / 2);
+      ctx.lineTo(enemy.x + w / 2, enemy.y + h / 2);
+      ctx.closePath();
+      ctx.fill();
+      return;
+    }
+
+    ctx.save();
+    ctx.shadowColor = this.p.butterfly;
+    ctx.shadowBlur = this.p.glow;
+    ctx.fillStyle = this.p.butterfly;
     ctx.beginPath();
     ctx.moveTo(enemy.x - w / 2, enemy.y + h / 2);
     ctx.lineTo(enemy.x - w / 2, enemy.y - h / 2);
@@ -577,20 +619,38 @@ export class GalagaGame implements ArcadeEngine {
     ctx.lineTo(enemy.x + w / 2, enemy.y + h / 2);
     ctx.closePath();
     ctx.fill();
+    ctx.restore();
   }
 
   private drawBoss(enemy: Enemy) {
     const ctx = this.ctx;
     const { w, h } = ENEMY_SIZE.boss;
-    ctx.fillStyle = "#ffd23c";
+
+    if (!this.p.glow) {
+      ctx.fillStyle = this.p.boss;
+      this.drawHexagon(enemy.x, enemy.y, w / 2, h / 2);
+
+      if (enemy.carryingCaptive) {
+        // Segundo hexágono, más pequeño, superpuesto junto al Boss Galaga: la
+        // nave capturada del jugador flotando junto a él.
+        ctx.fillStyle = this.p.bossCaptive;
+        this.drawHexagon(enemy.x + w / 2 + 10, enemy.y, w / 4, h / 4);
+      }
+      return;
+    }
+
+    ctx.save();
+    ctx.shadowColor = this.p.boss;
+    ctx.shadowBlur = this.p.glow;
+    ctx.fillStyle = this.p.boss;
     this.drawHexagon(enemy.x, enemy.y, w / 2, h / 2);
 
     if (enemy.carryingCaptive) {
-      // Segundo hexágono, más pequeño, superpuesto junto al Boss Galaga: la
-      // nave capturada del jugador flotando junto a él.
-      ctx.fillStyle = "#0ff";
+      ctx.shadowColor = this.p.bossCaptive;
+      ctx.fillStyle = this.p.bossCaptive;
       this.drawHexagon(enemy.x + w / 2 + 10, enemy.y, w / 4, h / 4);
     }
+    ctx.restore();
   }
 
   private drawHexagon(cx: number, cy: number, rx: number, ry: number) {
@@ -615,7 +675,7 @@ export class GalagaGame implements ArcadeEngine {
     const ctx = this.ctx;
     const apex = boss.cell;
     const height = this.H - apex.y;
-    ctx.fillStyle = "rgba(255, 210, 60, 0.35)";
+    ctx.fillStyle = this.p.beam;
     ctx.beginPath();
     ctx.moveTo(apex.x, apex.y);
     ctx.lineTo(apex.x - BEAM_WIDTH / 2, apex.y + height);
@@ -626,25 +686,61 @@ export class GalagaGame implements ArcadeEngine {
 
   private drawBullets() {
     const ctx = this.ctx;
-    ctx.fillStyle = "#0ff";
+
+    if (!this.p.glow) {
+      ctx.fillStyle = this.p.player;
+      for (const bullet of this.playerBullets) ctx.fillRect(bullet.x, bullet.y, bullet.w, bullet.h);
+
+      ctx.fillStyle = this.p.bulletEnemy;
+      for (const bullet of this.enemyBullets) ctx.fillRect(bullet.x, bullet.y, bullet.w, bullet.h);
+      return;
+    }
+
+    ctx.save();
+    ctx.shadowColor = this.p.player;
+    ctx.shadowBlur = this.p.glow;
+    ctx.fillStyle = this.p.player;
     for (const bullet of this.playerBullets) ctx.fillRect(bullet.x, bullet.y, bullet.w, bullet.h);
 
-    ctx.fillStyle = "#ff3c3c";
+    ctx.shadowColor = this.p.bulletEnemy;
+    ctx.fillStyle = this.p.bulletEnemy;
     for (const bullet of this.enemyBullets) ctx.fillRect(bullet.x, bullet.y, bullet.w, bullet.h);
+    ctx.restore();
   }
 
   private drawPlayer() {
     if (!this.player.visible) return;
-    this.ctx.fillStyle = "#0ff";
+    const ctx = this.ctx;
+
+    if (!this.p.glow) {
+      ctx.fillStyle = this.p.player;
+
+      if (this.playerMode === "dual") {
+        const gap = PLAYER_W_DUAL / 2 - PLAYER_W_SINGLE / 2 - 2;
+        this.drawShipTriangle(this.player.x - gap, PLAYER_Y, PLAYER_W_SINGLE, PLAYER_H);
+        this.drawShipTriangle(this.player.x + gap, PLAYER_Y, PLAYER_W_SINGLE, PLAYER_H);
+        return;
+      }
+
+      this.drawShipTriangle(this.player.x, PLAYER_Y, PLAYER_W_SINGLE, PLAYER_H);
+      return;
+    }
+
+    ctx.save();
+    ctx.shadowColor = this.p.player;
+    ctx.shadowBlur = this.p.glow;
+    ctx.fillStyle = this.p.player;
 
     if (this.playerMode === "dual") {
       const gap = PLAYER_W_DUAL / 2 - PLAYER_W_SINGLE / 2 - 2;
       this.drawShipTriangle(this.player.x - gap, PLAYER_Y, PLAYER_W_SINGLE, PLAYER_H);
       this.drawShipTriangle(this.player.x + gap, PLAYER_Y, PLAYER_W_SINGLE, PLAYER_H);
+      ctx.restore();
       return;
     }
 
     this.drawShipTriangle(this.player.x, PLAYER_Y, PLAYER_W_SINGLE, PLAYER_H);
+    ctx.restore();
   }
 
   private drawShipTriangle(cx: number, cy: number, w: number, h: number) {
