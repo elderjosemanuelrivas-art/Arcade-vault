@@ -7,8 +7,10 @@ import type { Game } from "@/lib/games-data";
 import type { ArcadeEngine, SkinName } from "@/lib/games/types";
 import { DEFAULT_SKIN, SKIN_NAMES } from "@/lib/games/types";
 import { GAME_ENGINES } from "@/lib/games/registry";
+import { TOUCH_CONTROLS } from "@/lib/games/touch-controls";
 import { createClient } from "@/lib/supabase/client";
 import { useSession } from "./session-provider";
+import { TouchControls } from "./touch-controls";
 
 type SaveState = "idle" | "saving" | "saved" | "error";
 
@@ -212,6 +214,7 @@ export function GamePlayer({ game }: { game: Game }) {
         </div>
       </div>
       {hasEngine && <p className="player-kb-note">REQUIERE TECLADO</p>}
+      {hasEngine && TOUCH_CONTROLS[game.id] && <TouchControls scheme={TOUCH_CONTROLS[game.id]!} />}
 
       {over && (
         <div className="modal-bd">

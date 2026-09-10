@@ -15,6 +15,10 @@ un motor de juego real (`<canvas>`) y cuáles siguen siendo la arena falsa origi
 - `public.scores` tiene **0 filas** todavía, así que los marcadores (`/salon`, la ficha de cada
   juego, el ticker del home) muestran su estado vacío hasta que alguien termine una partida real
   con sesión iniciada.
+- **21 sugerencias** de `game-planner` para próximos ports, registradas en
+  `.claude/agents/game-planner/memoria.md`: 1 para el slot `ranaria` (sesión inicial) + 20 de una
+  ronda de 4 ejecuciones paralelas (2026-09-08) — 3 ocupan los 3 slots libres restantes sin
+  migración, 17 exigirían dar de alta una fila nueva en `public.games`. Ver "To-do" más abajo.
 
 ## Catálogo completo
 
@@ -102,14 +106,55 @@ vía `setInterval`, sin lógica de juego, sin `<canvas>` ni assets. Como no hay 
 muestran el bloque de guardado de puntuación (eso requiere un motor real + sesión iniciada).
 
 - **GLOTÓN** (`gloton`) — ARCADE, yellow, `sort_order: 4`. "Devora puntos y escapa de los
-  fantasmas."
+  fantasmas." → sugerencia `game-planner`: **PAC-MAN** (memoria #012).
 - **INVASORES** (`invasores`) — SHOOTER, green, `sort_order: 5`. "Defiende el planeta de filas
-  alienígenas."
-- **RANARIA** (`ranaria`) — ARCADE, green, `sort_order: 7`. "Cruza la autopista de pixeles."
+  alienígenas." → sugerencia `game-planner`: **SPACE INVADERS** (memoria #002).
+- **RANARIA** (`ranaria`) — ARCADE, green, `sort_order: 7`. "Cruza la autopista de pixeles." →
+  sugerencia `game-planner`: **FROGGER** (memoria #001).
 - **DUELO PIXEL** (`duelo-pixel`) — VERSUS, cyan, `sort_order: 8`. "Dos paletas. Una pelota.
-  Reflejos máximos."
+  Reflejos máximos." → sugerencia `game-planner`: **PONG VERSUS** (memoria #017).
 
-Son los candidatos naturales para una futura pasada de `/juego-nuevo`.
+Son los candidatos naturales para una futura pasada de `/juego-nuevo`; ninguno de los 4 exige
+migración de catálogo.
+
+## To-do — sugerencias pendientes de `game-planner`
+
+Ledger completo (razonamiento, riesgos, descartes) en
+`.claude/agents/game-planner/memoria.md`. Lo de aquí es solo un índice rápido para no tener que
+abrir ese archivo cada vez.
+
+**Sin migración — los 4 slots de arriba.** Orden de preferencia del propio agente si hubiera que
+elegir uno para empezar: PAC-MAN → `gloton` (el más grande: IA de 4 fantasmas), SPACE INVADERS →
+`invasores`, PONG VERSUS → `duelo-pixel`, FROGGER → `ranaria`.
+
+**Con migración nueva sobre `public.games`** (patrón
+`supabase/migrations/20260826184921_games.sql`) **+ una regla `.cover-<slug>` a mano en
+`app/globals.css`** (la columna `cover` no es una imagen, es un nombre de clase CSS resuelta ahí y
+consumida en `game-card.tsx`/`home.tsx`/`app/juegos/[id]/page.tsx`):
+
+| # memoria | Juego            | `id` propuesto | `cat`   | color   |
+| --------- | ----------------- | -------------- | ------- | ------- |
+| 003       | Missile Command   | `misiles`      | SHOOTER | magenta |
+| 004       | Centipede         | `ciempies`     | SHOOTER | cyan    |
+| 005       | Galaga            | `escuadron`    | SHOOTER | yellow  |
+| 006       | Defender          | `defensor`     | SHOOTER | green   |
+| 007       | Puzzle Bobble     | `burbujas`     | PUZZLE  | cyan    |
+| 008       | Pipe Mania        | `tuberia`      | PUZZLE  | yellow  |
+| 009       | Panel de Pon      | `trueque`      | PUZZLE  | magenta |
+| 010       | Sokoban           | `bodega`       | PUZZLE  | green   |
+| 011       | 2048              | `duplica`      | PUZZLE  | cyan    |
+| 013       | Bomberman         | `bombardero`   | ARCADE  | magenta |
+| 014       | Dig Dug           | `excavador`    | ARCADE  | yellow  |
+| 015       | Pengo             | `pinguino`     | PUZZLE  | cyan    |
+| 016       | Q\*bert           | `piramide`     | ARCADE  | magenta |
+| 018       | Lunar Lander      | `alunizaje`    | ARCADE  | magenta |
+| 019       | Simon             | `secuencia`    | ARCADE  | cyan    |
+| 020       | Surround          | `estelas`      | VERSUS  | magenta |
+| 021       | Kaboom!           | `cubetas`      | ARCADE  | yellow  |
+
+Los `sort_order` no se listan aquí: las 4 rondas paralelas que produjeron esta lista los asignaron
+sin verse entre sí y colisionan entre ellas (ver memoria.md) — se fijan al escribir la migración
+real de cada uno, no antes.
 
 ## Cómo se añade un motor real a un juego existente
 

@@ -1,0 +1,51 @@
+- generic [active] [ref=f10e1]:
+  - generic [ref=f10e2]:
+    - navigation [ref=f10e3]:
+      - link "ARCADE VAULT" [ref=f10e4] [cursor=pointer]:
+        - /url: /
+      - button "Menú" [ref=f10e7] [cursor=pointer]: ≡
+    - complementary [ref=f10e8]:
+      - generic [ref=f10e9]: MENÚ
+      - link "Inicio" [ref=f10e10] [cursor=pointer]:
+        - /url: /
+      - link "Biblioteca" [ref=f10e11] [cursor=pointer]:
+        - /url: /biblioteca
+      - link "Salón de la Fama" [ref=f10e12] [cursor=pointer]:
+        - /url: /salon
+      - link "Acerca de" [ref=f10e13] [cursor=pointer]:
+        - /url: /acerca
+      - link "Iniciar Sesión" [ref=f10e14] [cursor=pointer]:
+        - /url: /auth
+      - generic [ref=f10e16]: CRÉDITOS · 03
+    - main [ref=f10e17]:
+      - generic [ref=f10e18]:
+        - generic [ref=f10e19]:
+          - generic [ref=f10e20]:
+            - generic [ref=f10e21]:
+              - generic [ref=f10e22]: Jugador
+              - generic [ref=f10e23]: INVITADO
+            - generic [ref=f10e24]:
+              - generic [ref=f10e25]: Puntuación
+              - generic [ref=f10e26]: "0"
+            - generic [ref=f10e27]:
+              - generic [ref=f10e28]: Vidas
+              - generic [ref=f10e29]: ♥ ♥ ♥
+            - generic [ref=f10e30]:
+              - generic [ref=f10e31]: Nivel
+              - generic [ref=f10e32]: "01"
+          - generic [ref=f10e33]:
+            - button "PAUSA" [ref=f10e34] [cursor=pointer]
+            - button "FIN" [ref=f10e35] [cursor=pointer]
+            - button "SALIR" [ref=f10e36] [cursor=pointer]
+        - generic [ref=f10e40]:
+          - generic [ref=f10e41]: SEÑAL OK
+          - generic [ref=f10e42]: ROCAS · CRT-83 · 60 HZ
+          - generic [ref=f10e43]: CARGA · 1MB
+        - generic [ref=f10e44]:
+          - generic [ref=f10e45]:
+            - button "▲" [ref=f10e46] [cursor=pointer]
+            - button "◀" [ref=f10e47] [cursor=pointer]
+            - button "▶" [ref=f10e48] [cursor=pointer]
+          - button "DISPARAR" [ref=f10e50] [cursor=pointer]
+    - contentinfo [ref=f10e51]: © 2026 ARCADE VAULT · HECHO CON PIXELES Y NEÓN · v2.6.0
+  - button "Open Next.js Dev Tools" [ref=f10e57] [cursor=pointer]

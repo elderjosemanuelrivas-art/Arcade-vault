@@ -1,0 +1,52 @@
+- generic [active] [ref=f6e1]:
+  - generic [ref=f6e2]:
+    - navigation [ref=f6e3]:
+      - link "ARCADE VAULT" [ref=f6e4] [cursor=pointer]:
+        - /url: /
+      - button "Menú" [ref=f6e7] [cursor=pointer]: ≡
+    - complementary [ref=f6e8]:
+      - generic [ref=f6e9]: MENÚ
+      - link "Inicio" [ref=f6e10] [cursor=pointer]:
+        - /url: /
+      - link "Biblioteca" [ref=f6e11] [cursor=pointer]:
+        - /url: /biblioteca
+      - link "Salón de la Fama" [ref=f6e12] [cursor=pointer]:
+        - /url: /salon
+      - link "Acerca de" [ref=f6e13] [cursor=pointer]:
+        - /url: /acerca
+      - link "Iniciar Sesión" [ref=f6e14] [cursor=pointer]:
+        - /url: /auth
+      - generic [ref=f6e16]: CRÉDITOS · 03
+    - main [ref=f6e17]:
+      - generic [ref=f6e18]:
+        - generic [ref=f6e19]:
+          - generic [ref=f6e20]: •••
+          - generic [ref=f6e22]:
+            - generic [ref=f6e23]:
+              - generic [ref=f6e24]: ARCADE
+              - generic [ref=f6e25]: 1 JUGADOR
+              - generic [ref=f6e26]: TECLADO / TÁCTIL
+              - generic [ref=f6e27]: RETRO 1985
+            - heading "GLOTÓN" [level=2] [ref=f6e28]
+            - paragraph [ref=f6e29]: Un círculo glotón patrulla un laberinto coleccionando puntos luminosos. Cuatro espectros lo persiguen, pero cada cierto tiempo aparece una píldora que invierte los papeles.
+            - generic [ref=f6e30]:
+              - generic [ref=f6e31]:
+                - generic [ref=f6e32]: Partidas
+                - generic [ref=f6e33]: "0"
+              - generic [ref=f6e34]:
+                - generic [ref=f6e35]: Mejor global
+                - generic [ref=f6e36]: "0"
+              - generic [ref=f6e37]:
+                - generic [ref=f6e38]: Dificultad
+                - generic [ref=f6e39]: ★ ★ ★ ☆ ☆
+            - generic [ref=f6e40]:
+              - link "▶ JUGAR AHORA" [ref=f6e41] [cursor=pointer]:
+                - /url: /juegos/gloton/jugar
+              - link "VOLVER AL VAULT" [ref=f6e42] [cursor=pointer]:
+                - /url: /biblioteca
+        - complementary [ref=f6e43]:
+          - generic [ref=f6e44]:
+            - heading "MEJORES PUNTUACIONES" [level=3] [ref=f6e45]
+            - generic [ref=f6e46]: AÚN NADIE HA JUGADO
+    - contentinfo [ref=f6e47]: © 2026 ARCADE VAULT · HECHO CON PIXELES Y NEÓN · v2.6.0
+  - button "Open Next.js Dev Tools" [ref=f6e53] [cursor=pointer]
