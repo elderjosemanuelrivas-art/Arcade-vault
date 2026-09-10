@@ -179,6 +179,15 @@ a { color: inherit; text-decoration: none; }
   .av-nav .hamburger { display: inline-flex; }
 }
 
+/* Below ~440px the logo + auth-btn + hamburger no longer fit on one row
+   (confirmed via scrollWidth > clientWidth at 320px and 390px) — the same
+   login/account link already lives in .av-mobile-panel below, reachable via
+   the hamburger, so hiding the redundant top-bar button here removes the
+   overflow without losing the action. */
+@media (max-width: 440px) {
+  .av-nav .auth-btn { display: none; }
+}
+
 .av-mobile-panel {
   position: fixed;
   inset: 0 0 0 auto;
@@ -609,6 +618,14 @@ a { color: inherit; text-decoration: none; }
 .hud-stat.lives .v { color: var(--magenta); text-shadow: 0 0 6px rgba(255,0,110,0.5); }
 .hud-stat.level .v { color: var(--yellow); text-shadow: 0 0 6px rgba(245,255,0,0.5); }
 .hud-actions { display: flex; gap: 10px; }
+
+/* At the 320px floor, PAUSA/FIN/SALIR (.hud-actions) don't fit on one row
+   inside .av-player's fixed 24px side padding and overflow the viewport
+   horizontally (confirmed via scrollWidth > clientWidth at 320px, not at
+   390px) — let the action row wrap instead of forcing a single line. */
+@media (max-width: 400px) {
+  .hud-actions { flex-wrap: wrap; }
+}
 
 .crt {
   position: relative;

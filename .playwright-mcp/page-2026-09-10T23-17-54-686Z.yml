@@ -1,0 +1,46 @@
+- generic [active] [ref=f5e1]:
+  - generic [ref=f5e2]:
+    - navigation [ref=f5e3]:
+      - link "ARCADE VAULT" [ref=f5e4] [cursor=pointer]:
+        - /url: /
+      - button "Menú" [ref=f5e7] [cursor=pointer]: ≡
+    - complementary [ref=f5e8]:
+      - generic [ref=f5e9]: MENÚ
+      - link "Inicio" [ref=f5e10] [cursor=pointer]:
+        - /url: /
+      - link "Biblioteca" [ref=f5e11] [cursor=pointer]:
+        - /url: /biblioteca
+      - link "Salón de la Fama" [ref=f5e12] [cursor=pointer]:
+        - /url: /salon
+      - link "Acerca de" [ref=f5e13] [cursor=pointer]:
+        - /url: /acerca
+      - link "Iniciar Sesión" [ref=f5e14] [cursor=pointer]:
+        - /url: /auth
+      - generic [ref=f5e16]: CRÉDITOS · 03
+    - main [ref=f5e17]:
+      - generic [ref=f5e18]:
+        - generic [ref=f5e19]:
+          - generic [ref=f5e20]:
+            - generic [ref=f5e21]:
+              - generic [ref=f5e22]: Jugador
+              - generic [ref=f5e23]: INVITADO
+            - generic [ref=f5e24]:
+              - generic [ref=f5e25]: Puntuación
+              - generic [ref=f5e26]: "0"
+            - generic [ref=f5e27]:
+              - generic [ref=f5e28]: Vidas
+              - generic [ref=f5e29]: ♥ ♥ ♥
+            - generic [ref=f5e30]:
+              - generic [ref=f5e31]: Nivel
+              - generic [ref=f5e32]: "01"
+          - generic [ref=f5e33]:
+            - button "PAUSA" [ref=f5e34] [cursor=pointer]
+            - button "FIN" [ref=f5e35] [cursor=pointer]
+            - button "SALIR" [ref=f5e36] [cursor=pointer]
+        - generic [ref=f5e40]:
+          - generic [ref=f5e41]: SEÑAL OK
+          - generic [ref=f5e42]: TETRIS · CRT-83 · 60 HZ
+          - generic [ref=f5e43]: CARGA · 1MB
+        - paragraph [ref=f5e44]: REQUIERE TECLADO
+    - contentinfo [ref=f5e45]: © 2026 ARCADE VAULT · HECHO CON PIXELES Y NEÓN · v2.6.0
+  - button "Open Next.js Dev Tools" [ref=f5e51] [cursor=pointer]

@@ -38,4 +38,11 @@ export const TOUCH_CONTROLS: Partial<Record<string, TouchScheme>> = {
     },
     actions: [],
   },
+  invasores: {
+    dpad: {
+      left: { code: "ArrowLeft", label: "◀" },
+      right: { code: "ArrowRight", label: "▶" },
+    },
+    actions: [{ code: "Space", label: "DISPARAR" }],
+  },
 };

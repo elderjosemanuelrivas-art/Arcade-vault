@@ -1,0 +1,59 @@
+- generic [active] [ref=f1e1]:
+  - generic [ref=f1e2]:
+    - navigation [ref=f1e3]:
+      - link "ARCADE VAULT" [ref=f1e4] [cursor=pointer]:
+        - /url: /
+      - generic [ref=f1e7]:
+        - link "Inicio" [ref=f1e8] [cursor=pointer]:
+          - /url: /
+        - link "Biblioteca" [ref=f1e9] [cursor=pointer]:
+          - /url: /biblioteca
+        - link "Salón de la Fama" [ref=f1e10] [cursor=pointer]:
+          - /url: /salon
+        - link "Acerca de" [ref=f1e11] [cursor=pointer]:
+          - /url: /acerca
+      - generic [ref=f1e12]: CRÉDITOS · 03
+    - complementary [ref=f1e15]:
+      - generic [ref=f1e16]: MENÚ
+      - link "Inicio" [ref=f1e17] [cursor=pointer]:
+        - /url: /
+      - link "Biblioteca" [ref=f1e18] [cursor=pointer]:
+        - /url: /biblioteca
+      - link "Salón de la Fama" [ref=f1e19] [cursor=pointer]:
+        - /url: /salon
+      - link "Acerca de" [ref=f1e20] [cursor=pointer]:
+        - /url: /acerca
+      - link "Iniciar Sesión" [ref=f1e21] [cursor=pointer]:
+        - /url: /auth
+      - generic [ref=f1e23]: CRÉDITOS · 03
+    - main [ref=f1e24]:
+      - generic [ref=f1e25]:
+        - generic [ref=f1e29]:
+          - generic [ref=f1e30]:
+            - generic [ref=f1e31]: SHOOTER
+            - generic [ref=f1e32]: 1 JUGADOR
+            - generic [ref=f1e33]: TECLADO / TÁCTIL
+            - generic [ref=f1e34]: RETRO 1985
+          - heading "INVASORES" [level=2] [ref=f1e35]
+          - paragraph [ref=f1e36]: Olas de pixeles hostiles descienden formación tras formación. Mueve tu cañón en horizontal y abre fuego con precisión, antes de que toquen la superficie.
+          - generic [ref=f1e37]:
+            - generic [ref=f1e38]:
+              - generic [ref=f1e39]: Partidas
+              - generic [ref=f1e40]: "0"
+            - generic [ref=f1e41]:
+              - generic [ref=f1e42]: Mejor global
+              - generic [ref=f1e43]: "0"
+            - generic [ref=f1e44]:
+              - generic [ref=f1e45]: Dificultad
+              - generic [ref=f1e46]: ★ ★ ★ ☆ ☆
+          - generic [ref=f1e47]:
+            - link "▶ JUGAR AHORA" [ref=f1e48] [cursor=pointer]:
+              - /url: /juegos/invasores/jugar
+            - link "VOLVER AL VAULT" [ref=f1e49] [cursor=pointer]:
+              - /url: /biblioteca
+        - complementary [ref=f1e50]:
+          - generic [ref=f1e51]:
+            - heading "MEJORES PUNTUACIONES" [level=3] [ref=f1e52]
+            - generic [ref=f1e53]: AÚN NADIE HA JUGADO
+    - contentinfo [ref=f1e54]: © 2026 ARCADE VAULT · HECHO CON PIXELES Y NEÓN · v2.6.0
+  - button "Open Next.js Dev Tools" [ref=f1e60] [cursor=pointer]
