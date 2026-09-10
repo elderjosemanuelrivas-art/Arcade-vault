@@ -5,4 +5,5 @@ export const GAME_ENGINES: Record<string, () => Promise<{ default: EngineFactory
   tetris: () => import("@/lib/games/tetris"),
   arkanoid: () => import("@/lib/games/arkanoid"),
   serpentina: () => import("@/lib/games/serpentina"),
+  invasores: () => import("@/lib/games/invasores"),
 };

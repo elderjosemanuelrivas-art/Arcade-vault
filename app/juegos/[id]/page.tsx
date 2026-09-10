@@ -3,6 +3,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getGame, getGameScores } from "@/lib/games-data";
 import { Leaderboard } from "@/app/components/leaderboard";
+import { GAME_ENGINES } from "@/lib/games/registry";
+import { TOUCH_CONTROLS } from "@/lib/games/touch-controls";
 
 export async function generateMetadata({ params }: PageProps<"/juegos/[id]">): Promise<Metadata> {
   const { id } = await params;
@@ -19,6 +21,13 @@ export default async function Page({ params }: PageProps<"/juegos/[id]">) {
   if (!game) notFound();
 
   const scores = await getGameScores(id, 10);
+  // "TECLADO / TÁCTIL" es el rótulo por defecto para las 7 pantallas de
+  // detalle que ya lo mostraban (4 juegos con motor real + táctil, 3 arenas
+  // falsas) — se mantiene igual para no cambiarles nada. Solo un juego con
+  // motor real y sin esquema en TOUCH_CONTROLS (hoy, `invasores`) muestra
+  // "TECLADO" a secas, porque de verdad no tiene D-pad táctil.
+  const controlsLabel =
+    game.id in GAME_ENGINES && !TOUCH_CONTROLS[game.id] ? "TECLADO" : "TECLADO / TÁCTIL";
 
   return (
     <div className="av-detail fade-in">
@@ -30,7 +39,7 @@ export default async function Page({ params }: PageProps<"/juegos/[id]">) {
           <div className="detail-tags">
             <span>{game.cat}</span>
             <span>1 JUGADOR</span>
-            <span>TECLADO / TÁCTIL</span>
+            <span>{controlsLabel}</span>
             <span>RETRO 1985</span>
           </div>
           <h2 className="neon-cyan">{game.title}</h2>
