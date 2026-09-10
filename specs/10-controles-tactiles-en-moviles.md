@@ -1,6 +1,6 @@
 # SPEC 10 — Controles táctiles en móviles
 
-> **Status:** aprobado
+> **Status:** implementado
 > **Depends on:** SPEC 05, SPEC 06, SPEC 07, SPEC 08, SPEC 09
 > **Date:** 2026-09-10
 > **Objective:** Añadir controles táctiles en pantalla (D-pad + botones de acción) a los cuatro juegos con motor real (`rocas`, `tetris`, `arkanoid`, `serpentina`), visibles solo en dispositivos táctiles, sin modificar ninguna lógica interna de los `engine.ts` existentes.
